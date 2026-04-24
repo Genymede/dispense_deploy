@@ -588,7 +588,7 @@ export const patientApi = {
 // Queue APIs
 // ─────────────────────────────────────────────────────────────────────────────
 export const queueApi = {
-  getQueue:   (params?: { status?: string }) =>
+  getQueue:   (params?: { status?: string; date?: string }) =>
     api.get<{ data: any[]; total: number }>('/queue', { params }),
   getDisplay: () => api.get<{ current: any | null; waiting: any[] }>('/queue/display'),
   getStats:   () => api.get<{ waiting: number; called: number; completed: number; skipped: number; total: number; current_number: number }>('/queue/stats'),

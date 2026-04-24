@@ -530,18 +530,19 @@ export default function DispensePage() {
   const [queueStats, setQueueStats] = useState<any>(null);
   const [queueLoading, setQueueLoading] = useState(false);
   const [queueRefreshKey, setQueueRefreshKey] = useState(0);
+  const [queueDate, setQueueDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const loadQueue = useCallback(async () => {
     setQueueLoading(true);
     try {
       const [listRes, statsRes] = await Promise.all([
-        queueApi.getQueue(),
+        queueApi.getQueue({ date: queueDate }),
         queueApi.getStats(),
       ]);
       setQueueItems(listRes.data.data);
       setQueueStats(statsRes.data);
     } catch { } finally { setQueueLoading(false); }
-  }, [queueRefreshKey]);
+  }, [queueRefreshKey, queueDate]);
 
   useEffect(() => { loadQueue(); }, [loadQueue]);
 
@@ -670,6 +671,15 @@ export default function DispensePage() {
               options={Object.entries(STATUS_TH).map(([v, l]) => ({ value: v, label: l }))} />
             <Input placeholder="วอร์ด..." value={fWard}
               onChange={e => { setFWard(e.target.value); setPage(1); }} className="w-28" />
+            <div className="flex items-center gap-1.5">
+              <label className="text-xs text-slate-500 whitespace-nowrap">คิววันที่</label>
+              <input
+                type="date"
+                value={queueDate}
+                onChange={e => setQueueDate(e.target.value)}
+                className="h-9 border border-slate-200 rounded-lg px-2 text-sm outline-none focus:ring-2 focus:ring-primary-400 bg-white"
+              />
+            </div>
             <button onClick={loadList} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             </button>
