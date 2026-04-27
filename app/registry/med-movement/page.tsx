@@ -3,7 +3,7 @@ import { useState } from 'react';
 import MainLayout from '@/components/MainLayout';
 import DataTable, { ColDef, DateRangeFilter } from '@/components/DataTable';
 import DetailDrawer, { DrawerSection, DrawerGrid } from '@/components/DetailDrawer';
-import { Badge, Select } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { stockApi, type StockTransaction } from '@/lib/api';
 import { thaiToday, thaiDaysAgo, fmtDate as safeDate } from '@/lib/dateUtils';
 import {
@@ -22,15 +22,6 @@ const TX_CONFIG: Record<string, {
   return:  { label: 'คืนยา',     icon: <RotateCcw       size={13} />, variant: 'gray'    },
   expired: { label: 'หมดอายุ',   icon: <AlertTriangle   size={13} />, variant: 'danger'  },
 };
-
-const TX_TYPE_OPTIONS = [
-  { value: '',        label: 'ทุกประเภท' },
-  { value: 'in',      label: 'รับเข้า' },
-  { value: 'out',     label: 'จ่ายออก' },
-  { value: 'adjust',  label: 'ปรับสต็อก' },
-  { value: 'return',  label: 'คืนยา' },
-  { value: 'expired', label: 'หมดอายุ' },
-];
 
 const cols: ColDef[] = [
   { key: 'created_at', label: 'วันเวลา',
@@ -84,7 +75,7 @@ const cols: ColDef[] = [
 
 export default function MedMovementPage() {
   const [drawer,   setDrawer]   = useState<StockTransaction | null>(null);
-  const [dateFrom, setDateFrom] = useState(thaiDaysAgo(30));
+  const [dateFrom, setDateFrom] = useState(thaiDaysAgo(7));
   const [dateTo,   setDateTo]   = useState(thaiToday());
   const [txType,   setTxType]   = useState('');
 
@@ -93,6 +84,26 @@ export default function MedMovementPage() {
 
   return (
     <MainLayout title="ทะเบียนการเคลื่อนไหวยา" subtitle="Medication Movement Registry">
+
+      {/* Type filter cards */}
+      <div className="flex gap-3 mb-5 flex-wrap">
+        <button
+          onClick={() => setTxType('')}
+          className={`card px-4 py-2.5 text-sm font-medium transition-all ${!txType ? 'ring-2 ring-primary-400 border-primary-200' : 'hover:border-primary-200'}`}
+        >
+          ทั้งหมด
+        </button>
+        {Object.entries(TX_CONFIG).map(([type, { label, variant }]) => (
+          <button
+            key={type}
+            onClick={() => setTxType(txType === type ? '' : type)}
+            className={`card px-4 py-2.5 transition-all ${txType === type ? 'ring-2 ring-primary-400 border-primary-200' : 'hover:border-primary-200'}`}
+          >
+            <Badge variant={variant}>{label}</Badge>
+          </button>
+        ))}
+      </div>
+
       <DataTable
         cols={cols}
         fetcher={p =>
@@ -106,22 +117,13 @@ export default function MedMovementPage() {
         searchPlaceholder="ค้นหาชื่อยา, เลขอ้างอิง..."
         emptyIcon={<Activity size={36} />}
         emptyText="ไม่พบรายการเคลื่อนไหว"
-        exportTitle="ทะเบียนการเคลื่อนไหวยา"
         deps={[dateFrom, dateTo, txType]}
         onRowClick={setDrawer}
         extraFilters={
-          <div className="flex items-center gap-2 flex-wrap">
-            <Select
-              options={TX_TYPE_OPTIONS}
-              value={txType}
-              onChange={e => setTxType(e.target.value)}
-              className="h-9 text-sm min-w-[130px]"
-            />
-            <DateRangeFilter
-              dateFrom={dateFrom} dateTo={dateTo}
-              onFromChange={setDateFrom} onToChange={setDateTo}
-            />
-          </div>
+          <DateRangeFilter
+            dateFrom={dateFrom} dateTo={dateTo}
+            onFromChange={setDateFrom} onToChange={setDateTo}
+          />
         }
       />
 
