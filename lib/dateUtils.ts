@@ -46,6 +46,18 @@ export function fmtDate(val: any, withTime = false): string {
 }
 
 /**
+ * Format timestamp จาก DB เป็นเวลา HH:mm เท่านั้น (timezone ไทย)
+ */
+export function fmtTime(val: any): string {
+  const d = toIso(val);
+  if (!d) return '—';
+  return new Intl.DateTimeFormat('th-TH-u-ca-gregory', {
+    timeZone: 'Asia/Bangkok',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  }).format(d);
+}
+
+/**
  * Format date สำหรับ label แกน chart (แสดงเฉพาะ วัน+เดือน ไม่มีปี)
  */
 export function fmtDateLabel(val: any): string {

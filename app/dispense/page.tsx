@@ -16,7 +16,7 @@ import {
   PhoneCall, ClipboardCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { fmtDate } from '@/lib/dateUtils';
+import { fmtDate, fmtTime } from '@/lib/dateUtils';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TREATMENT_RIGHT_LABEL: Record<string, string> = {
@@ -698,7 +698,7 @@ export default function DispensePage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>{['คิว', 'วันที่', 'ผู้ป่วย', 'วอร์ด / วินิจฉัย', 'แพทย์', 'สถานะ', 'รายการ', 'ยอดรวม', ''].map(h => (
+                    <tr>{['คิว', 'วันที่', 'เวลา', 'ผู้ป่วย', 'วอร์ด / วินิจฉัย', 'แพทย์', 'สถานะ', 'รายการ', 'ยอดรวม', ''].map(h => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 last:text-right whitespace-nowrap">{h}</th>
                     ))}</tr>
                   </thead>
@@ -712,7 +712,10 @@ export default function DispensePage() {
                             {rxq ? rxq.queue_number : <span className="text-slate-300">—</span>}
                           </td>
                           <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
-                            {fmtDate(rx.created_at, true)}
+                            {fmtDate(rx.created_at)}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                            {fmtTime(rx.created_at)}
                           </td>
                           <td className="px-4 py-3">
                             <p className="font-medium text-slate-800">{rx.patient_name || 'ไม่ระบุ'}</p>
@@ -830,7 +833,7 @@ export default function DispensePage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 border-b border-slate-100">
-                      <tr>{['คิว', 'ผู้ป่วย', 'HN', 'เลขใบสั่ง', 'วอร์ด', 'รายการ', 'ผู้จ่าย', 'เวลาจ่าย', ''].map(h => (
+                      <tr>{['คิว', 'ผู้ป่วย', 'HN', 'เลขใบสั่ง', 'วอร์ด', 'รายการ', 'ผู้จ่าย', 'วันที่จ่าย', 'เวลาจ่าย', ''].map(h => (
                         <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap last:text-right">{h}</th>
                       ))}</tr>
                     </thead>
@@ -851,7 +854,10 @@ export default function DispensePage() {
                             <td className="px-4 py-3 text-xs text-slate-500">{rx.item_count ?? '—'} รายการ</td>
                             <td className="px-4 py-3 text-xs text-slate-600">{rx.dispensed_by_name || '—'}</td>
                             <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
-                              {fmtDate(rx.dispensed_at, true)}
+                              {fmtDate(rx.dispensed_at)}
+                            </td>
+                            <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+                              {fmtTime(rx.dispensed_at)}
                             </td>
                             <td className="px-4 py-3 text-right">
                               {dq && (dq.status === 'waiting' || dq.status === 'called') && (
