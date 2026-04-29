@@ -1344,7 +1344,10 @@ export default function DispensePage() {
         ) : drawerFull ? (
           <>
             <DrawerSection title="ข้อมูลทั่วไป">
-              <div className="flex items-center gap-3 mb-3">
+              <button
+                onClick={() => drawerFull.patient_id && setPatientDrawerId(drawerFull.patient_id)}
+                className="flex items-center gap-3 mb-3 w-full text-left group"
+              >
                 {drawerFull.patient_photo ? (
                   <img
                     src={`/images/patient_image/${drawerFull.patient_photo}`}
@@ -1357,26 +1360,19 @@ export default function DispensePage() {
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-800 truncate">{drawerFull.patient_name || 'ไม่ระบุ'}</p>
+                  <p className="font-semibold text-slate-800 truncate group-hover:text-primary-600 transition-colors underline decoration-dotted underline-offset-2">
+                    {drawerFull.patient_name || 'ไม่ระบุ'}
+                  </p>
                   <p className="text-xs text-slate-400 font-mono">HN: {drawerFull.hn_number || '—'}</p>
                 </div>
-              </div>
+              </button>
               <DrawerGrid items={[
-                {
-                  label: 'ผู้ป่วย', value: drawerFull.patient_id
-                    ? <button onClick={() => setPatientDrawerId(drawerFull.patient_id)} className="text-left hover:text-primary-600 transition-colors">
-                      <p className="font-medium underline decoration-dotted">{drawerFull.patient_name || 'ไม่ระบุ'}</p>
-                      <p className="text-xs text-slate-400">{drawerFull.hn_number}</p>
-                    </button>
-                    : <><p className="font-medium">{drawerFull.patient_name || 'ไม่ระบุ'}</p><p className="text-xs text-slate-400">{drawerFull.hn_number}</p></>
-                },
                 { label: 'กรุ๊ปเลือด', value: drawerFull.blood_group ?? '—' },
                 { label: 'สิทธิ์การรักษา', value: treatmentRightLabel(drawerFull.treatment_right, drawerFull.treatment_right_note) ?? '—' },
                 { label: 'แพทย์', value: drawerFull.doctor_name || '—' },
                 { label: 'วอร์ด', value: drawerFull.ward ?? '—' },
                 { label: 'วินิจฉัย', value: drawerFull.diagnosis ?? '—', span: true },
                 { label: 'PMH', value: drawerFull.PMH ?? '—', span: true },
-                { label: 'สถานะ', value: <Badge variant={STATUS_COLOR[drawerFull.status] ?? 'gray'} dot>{STATUS_TH[drawerFull.status] ?? drawerFull.status}</Badge> },
                 { label: 'วันที่สร้าง', value: fmtDate(drawerFull.created_at, true) },
                 { label: 'ผู้จ่ายยา', value: drawerFull.dispensed_by_name || '—' },
                 { label: 'จ่ายเมื่อ', value: fmtDate(drawerFull.dispensed_at, true) },
