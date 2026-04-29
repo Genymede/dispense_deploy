@@ -358,9 +358,8 @@ export default function DrugsPage() {
           <>
             <DrawerSection title="ข้อมูลยาในคลัง">
               <DrawerGrid items={[
-                { label: 'ชื่อแสดง (ไทย)',  value: viewDrug.med_showname || viewDrug.med_name },
-                { label: 'ชื่อแสดง (อังกฤษ)', value: (viewDrug as any).med_showname_eng || '—' },
                 { label: 'ชื่อสามัญ',        value: viewDrug.med_generic_name || '—', span: true },
+                { label: 'ชื่อแสดง (อังกฤษ)', value: (viewDrug as any).med_showname_eng || '—', span: true },
                 { label: 'หมวดหมู่',         value: viewDrug.category || '—' },
                 { label: 'รูปแบบบรรจุ',     value: viewDrug.packaging_type },
                 { label: 'หน่วย',            value: viewDrug.unit },
@@ -376,10 +375,10 @@ export default function DrugsPage() {
                     {viewDrug.current_stock.toLocaleString()} {viewDrug.unit}
                   </span> },
                 { label: 'ขั้นต่ำ / สูงสุด', value: `${viewDrug.min_quantity ?? '—'} / ${viewDrug.max_quantity ?? '—'}` },
+                { label: 'วันหมดอายุ',       value: fmtDate(viewDrug.exp_date) },
+                { label: 'วันผลิต',          value: fmtDate(viewDrug.mfg_date) },
                 { label: 'ราคาต้นทุน',       value: viewDrug.cost_price != null ? `฿${Number(viewDrug.cost_price).toFixed(2)}` : '—' },
                 { label: 'ราคาขาย',          value: viewDrug.unit_price != null ? `฿${Number(viewDrug.unit_price).toFixed(2)}` : '—' },
-                { label: 'วันผลิต',          value: fmtDate(viewDrug.mfg_date) },
-                { label: 'วันหมดอายุ',       value: fmtDate(viewDrug.exp_date) },
               ]} />
             </DrawerSection>
 
