@@ -148,8 +148,8 @@ export default function SafetyPanel({ prescriptionId, onLoaded, overrideAlerts }
     <div className="space-y-3">
       {/* ── Header summary ── */}
       <div className={`rounded-xl border px-4 py-3 flex items-start gap-3 ${isSafe ? 'bg-green-50 border-green-200' :
-          isCritical ? 'bg-red-50 border-red-200' :
-            'bg-amber-50 border-amber-200'
+        isCritical ? 'bg-red-50 border-red-200' :
+          'bg-amber-50 border-amber-200'
         }`}>
         {isSafe
           ? <ShieldCheck size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
@@ -169,13 +169,13 @@ export default function SafetyPanel({ prescriptionId, onLoaded, overrideAlerts }
           </p>
 
           {/* Patient info */}
-          <div className="flex flex-wrap gap-3 mt-2">
+          {/* <div className="flex flex-wrap gap-3 mt-2">
             {result.blood_group && (
               <span className="text-xs text-slate-600">
                 🩸 กรุ๊ปเลือด: <strong>{result.blood_group}</strong>
               </span>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
