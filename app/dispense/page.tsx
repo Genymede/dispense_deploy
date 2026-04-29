@@ -1344,6 +1344,23 @@ export default function DispensePage() {
         ) : drawerFull ? (
           <>
             <DrawerSection title="ข้อมูลทั่วไป">
+              <div className="flex items-center gap-3 mb-3">
+                {drawerFull.patient_photo ? (
+                  <img
+                    src={`/images/patient_image/${drawerFull.patient_photo}`}
+                    alt={drawerFull.patient_name || 'ผู้ป่วย'}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-slate-200 shadow-sm flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 border-2 border-slate-200">
+                    <span className="text-primary-600 font-bold text-xl">{(drawerFull.patient_name || '?')[0]}</span>
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-800 truncate">{drawerFull.patient_name || 'ไม่ระบุ'}</p>
+                  <p className="text-xs text-slate-400 font-mono">HN: {drawerFull.hn_number || '—'}</p>
+                </div>
+              </div>
               <DrawerGrid items={[
                 {
                   label: 'ผู้ป่วย', value: drawerFull.patient_id
