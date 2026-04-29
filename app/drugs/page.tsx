@@ -433,12 +433,9 @@ export default function DrugsPage() {
               if (!viewDrug.mfg_date)       missing.push('วันผลิต');
               if (!missing.length) return null;
               return (
-                <div className="mx-4 mt-4 mb-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex items-start gap-2.5">
-                  <span className="text-amber-500 text-base mt-0.5">⚠️</span>
-                  <div>
-                    <p className="text-sm font-semibold text-amber-800">ข้อมูลยังไม่ครบถ้วน ({missing.length} ฟิลด์)</p>
-                    <p className="text-xs text-amber-700 mt-1">กรุณากดแก้ไขเพื่อเพิ่ม: <span className="font-medium">{missing.join(', ')}</span></p>
-                  </div>
+                <div className="mx-4 mt-3 mb-1 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-center gap-2">
+                  <span className="text-amber-500 text-sm shrink-0">⚠️</span>
+                  <p className="text-xs text-amber-700">ข้อมูลไม่ครบ: <span className="font-medium">{missing.join(', ')}</span></p>
                 </div>
               );
             })()}
