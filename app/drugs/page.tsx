@@ -41,6 +41,7 @@ export default function DrugsPage() {
 
   const [showModal, setShowModal] = useState(false);
   const [editingSid, setEditingSid] = useState<number | null>(null);
+  const [editingDrugName, setEditingDrugName] = useState('');
   const [viewDrug, setViewDrug] = useState<Drug | null>(null);
   const [viewLots, setViewLots] = useState<StockLot[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -172,6 +173,7 @@ export default function DrugsPage() {
       exp_date: d.exp_date ? d.exp_date.slice(0, 10) : '',
     });
     setEditingSid(d.med_sid);
+    setEditingDrugName(d.med_showname || d.med_name);
     setShowModal(true);
   };
 
@@ -367,7 +369,7 @@ export default function DrugsPage() {
       </Card>
 
       {/* Create/Edit Modal */}
-      <Modal open={showModal} onClose={() => setShowModal(false)} title={editingSid ? 'แก้ไขข้อมูลยา' : 'เพิ่มยาในคลัง'} size="lg"
+      <Modal open={showModal} onClose={() => setShowModal(false)} title={editingSid ? `แก้ไขข้อมูลยา — ${editingDrugName}` : 'เพิ่มยาในคลัง'} size="lg"
         footer={<><Button variant="secondary" onClick={() => setShowModal(false)}>ยกเลิก</Button><Button onClick={handleSave} loading={saving}>บันทึก</Button></>}
       >
         {!editingSid && (
