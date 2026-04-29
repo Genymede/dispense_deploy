@@ -36,6 +36,8 @@ export interface Drug {
   mfg_date: string | null;
   exp_date: string | null;
   is_expired: boolean;
+  drug_code: string | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
   med_name: string;

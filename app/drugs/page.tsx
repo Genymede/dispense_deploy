@@ -257,7 +257,7 @@ export default function DrugsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    {['ชื่อยา', 'หมวดหมู่', 'รูปแบบ', 'สต็อก', 'ขั้นต่ำ/สูงสุด', 'ที่เก็บ', 'วันหมดอายุ', 'สถานะ', ''].map((h) => (
+                    {['รูป', 'รหัส', 'ชื่อยา', 'หมวดหมู่', 'ประเภท', 'คงเหลือ', 'ขั้นต่ำ', 'หน่วย', 'สถานะ', 'จัดการ'].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap last:text-right">{h}</th>
                     ))}
                   </tr>
@@ -267,35 +267,52 @@ export default function DrugsPage() {
                     const isExp = d.is_expired || (d.exp_date ? new Date(d.exp_date) < new Date() : false);
                     const isLow = !isExp && d.min_quantity != null && d.current_stock < d.min_quantity;
                     const statusV = isExp ? 'danger' : isLow ? 'warning' : 'success';
-                    const statusL = isExp ? 'หมดอายุ' : isLow ? 'ต่ำ' : 'ปกติ';
+                    const statusL = isExp ? 'หมดอายุ' : isLow ? 'สต็อกต่ำ' : 'ปกติ';
                     return (
                       <tr key={d.med_sid} className="table-row-hover cursor-pointer" onClick={() => setViewDrug(d)}>
-                        <td className="px-4 py-3">
-                          <p className="font-medium text-slate-800">{d.med_showname || d.med_name}</p>
-                          <p className="text-xs text-slate-400">{d.med_generic_name || d.med_name}</p>
+                        {/* รูป */}
+                        <td className="px-3 py-2.5">
+                          {d.image_url
+                            ? <img src={d.image_url} alt="" className="w-10 h-10 rounded-lg object-cover border border-slate-100" />
+                            : <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300"><Package size={18} /></div>
+                          }
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-600">{d.category || '-'}</td>
-                        <td className="px-4 py-3 text-xs text-slate-600">{d.packaging_type}</td>
-                        <td className="px-4 py-3">
-                          <span className={`font-semibold ${isLow || isExp ? 'text-red-600' : 'text-slate-800'}`}>
+                        {/* รหัส */}
+                        <td className="px-4 py-2.5">
+                          <span className="font-mono text-xs text-slate-500">
+                            {d.drug_code || `#${d.med_sid}`}
+                          </span>
+                        </td>
+                        {/* ชื่อยา */}
+                        <td className="px-4 py-2.5">
+                          <p className="font-medium text-slate-800 leading-tight">{d.med_showname || d.med_name}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{d.med_generic_name || d.med_name}</p>
+                        </td>
+                        {/* หมวดหมู่ */}
+                        <td className="px-4 py-2.5 text-xs text-slate-600">{d.category || '-'}</td>
+                        {/* ประเภท */}
+                        <td className="px-4 py-2.5 text-xs text-slate-600">{d.packaging_type || '-'}</td>
+                        {/* คงเหลือ */}
+                        <td className="px-4 py-2.5">
+                          <span className={`font-semibold tabular-nums ${isLow || isExp ? 'text-red-600' : 'text-slate-800'}`}>
                             {d.current_stock.toLocaleString()}
                           </span>
-                          <span className="text-slate-400 text-xs ml-1">{d.unit}</span>
-                        </td>
-                        <td className="px-4 py-3 text-xs font-mono text-slate-500">
-                          {d.min_quantity ?? '-'} / {d.max_quantity ?? '-'}
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs text-slate-500">{d.location || '-'}</td>
-                        <td className="px-4 py-3 text-xs text-slate-500">
-                          {d.exp_date ? fmtDate(d.exp_date) : '-'}
                           {d.lot_count != null && d.lot_count > 0 && (
-                            <span className="ml-1.5 text-[10px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
+                            <span className="ml-1.5 text-[10px] font-semibold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">
                               {d.lot_count} lot
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3"><Badge variant={statusV} dot>{statusL}</Badge></td>
-                        <td className="px-4 py-3">
+                        {/* ขั้นต่ำ */}
+                        <td className="px-4 py-2.5 text-xs tabular-nums text-slate-500">
+                          {d.min_quantity ?? '-'}
+                        </td>
+                        {/* หน่วย */}
+                        <td className="px-4 py-2.5 text-xs text-slate-600">{d.unit || '-'}</td>
+                        {/* สถานะ */}
+                        <td className="px-4 py-2.5"><Badge variant={statusV} dot>{statusL}</Badge></td>
+                        {/* จัดการ */}
+                        <td className="px-4 py-2.5">
                           <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                             <button onClick={() => setViewDrug(d)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-primary-600 transition-colors"><Eye size={15} /></button>
                             <button onClick={() => openEdit(d)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-amber-600 transition-colors"><Edit2 size={15} /></button>
