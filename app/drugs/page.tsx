@@ -420,26 +420,6 @@ export default function DrugsPage() {
       >
         {viewDrug && (
           <>
-            {/* คำเตือน: ข้อมูลไม่ครบ */}
-            {(() => {
-              const missing: string[] = [];
-              if (!viewDrug.med_showname) missing.push('ชื่อแสดง (ไทย)');
-              if (!viewDrug.med_showname_eng) missing.push('ชื่อแสดง (อังกฤษ)');
-              if (!viewDrug.location) missing.push('ที่เก็บ');
-              if (viewDrug.min_quantity == null) missing.push('สต็อกขั้นต่ำ');
-              if (viewDrug.max_quantity == null) missing.push('สต็อกสูงสุด');
-              if (viewDrug.cost_price == null) missing.push('ราคาต้นทุน');
-              if (viewDrug.unit_price == null) missing.push('ราคาขาย');
-              if (!viewDrug.mfg_date) missing.push('วันผลิต');
-              if (!missing.length) return null;
-              return (
-                <div className="mx-4 mt-1 mb-1 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex items-center gap-2">
-                  <span className="text-amber-500 text-sm shrink-0">⚠️</span>
-                  <p className="text-xs text-amber-700">ข้อมูลไม่ครบ: <span className="font-medium">{missing.join(', ')}</span></p>
-                </div>
-              );
-            })()}
-
             {/* 1. รายละเอียด Lot — สำคัญที่สุด */}
             <DrawerSection title={`รายละเอียด Lot (${viewLots.length} lot)`}>
               {viewLots.length === 0 ? (

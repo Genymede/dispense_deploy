@@ -3,16 +3,17 @@ import { useEffect, useState, useCallback } from 'react';
 import MainLayout from '@/components/MainLayout';
 import { Card, Badge, Button, EmptyState, Spinner } from '@/components/ui';
 import { alertApi, type Alert } from '@/lib/api';
-import { Bell, AlertTriangle, Calendar, TrendingDown, Package, CheckCheck, Eye } from 'lucide-react';
+import { Bell, AlertTriangle, Calendar, TrendingDown, Package, CheckCheck, Eye, ClipboardList } from 'lucide-react';
 import { fmtDate } from '@/lib/dateUtils';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 const ALERT_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
-  low_stock:   { icon: <TrendingDown size={16} />, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100', label: 'สต็อกต่ำ' },
-  near_expiry: { icon: <Calendar size={16} />,     color: 'text-orange-600', bg: 'bg-orange-50 border-orange-100', label: 'ใกล้หมดอายุ' },
-  expired:     { icon: <AlertTriangle size={16} />, color: 'text-red-600',  bg: 'bg-red-50 border-red-100',    label: 'หมดอายุ' },
-  overstock:   { icon: <Package size={16} />,       color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100',  label: 'เกินสต็อก' },
+  low_stock:         { icon: <TrendingDown size={16} />,   color: 'text-amber-600',  bg: 'bg-amber-50 border-amber-100',   label: 'สต็อกต่ำ' },
+  near_expiry:       { icon: <Calendar size={16} />,       color: 'text-orange-600', bg: 'bg-orange-50 border-orange-100', label: 'ใกล้หมดอายุ' },
+  expired:           { icon: <AlertTriangle size={16} />,  color: 'text-red-600',    bg: 'bg-red-50 border-red-100',       label: 'หมดอายุ' },
+  overstock:         { icon: <Package size={16} />,        color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-100',     label: 'เกินสต็อก' },
+  incomplete_record: { icon: <ClipboardList size={16} />,  color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100', label: 'ข้อมูลไม่ครบ' },
 };
 
 export default function AlertsPage() {

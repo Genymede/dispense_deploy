@@ -152,7 +152,7 @@ export interface Patient {
 
 export interface Alert {
   id: string;
-  alert_type: 'low_stock' | 'near_expiry' | 'expired' | 'overstock';
+  alert_type: 'low_stock' | 'near_expiry' | 'expired' | 'overstock' | 'incomplete_record';
   med_sid: number;
   drug_name: string;
   message: string;
