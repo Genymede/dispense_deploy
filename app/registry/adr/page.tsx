@@ -149,9 +149,9 @@ export default function AdrPage() {
               { label: 'อาการ',        value: drawer.symptoms || '—', span: true },
               { label: 'คำอธิบาย',    value: drawer.description, span: true },
               { label: 'ผลลัพธ์',     value: drawer.outcome || '—' },
-              { label: 'ผู้รายงาน',   value: drawer.reporter_name || '—' },
               { label: 'วันที่รายงาน', value: fmtDate(drawer.reported_at, true), span: true },
               { label: 'วันที่บันทึก', value: fmtDate(drawer.created_at, true), span: true },
+              { label: 'ผู้รายงาน',   value: drawer.reporter_name || '—' },
               { label: 'หมายเหตุ',    value: drawer.notes || '—', span: true },
             ]} />
           </DrawerSection>

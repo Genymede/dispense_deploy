@@ -97,9 +97,9 @@ export default function DispenseHistoryPage() {
                 { label: 'ผู้ป่วย',     value: <><p className="font-medium">{drawer.patient_name || 'ไม่ระบุ'}</p><p className="text-xs text-slate-400">HN: {drawer.hn_number || '—'}</p></> },
                 { label: 'วอร์ด',       value: drawer.ward || '—' },
                 { label: 'แพทย์',       value: drawer.doctor_name || '—' },
-                { label: 'ผู้จ่ายยา',   value: drawer.dispensed_by_name || '—' },
                 { label: 'วันที่สร้าง', value: safeDate(drawer.created_at, true), span: true },
                 { label: 'จ่ายเมื่อ',   value: safeDate(drawer.dispensed_at, true) },
+                { label: 'ผู้จ่ายยา',   value: drawer.dispensed_by_name || '—' },
                 { label: 'ยอดรวม',     value: Number(drawer.total_cost) > 0
                     ? `${Number(drawer.total_cost).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`
                     : '—' },

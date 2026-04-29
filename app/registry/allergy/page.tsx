@@ -131,10 +131,10 @@ export default function AllergyPage() {
               { label: 'ระดับ',        value: <Badge variant={(SEV[drawer.severity as keyof typeof SEV] ?? { variant: 'gray' }).variant}>{SEV[drawer.severity as keyof typeof SEV]?.label ?? drawer.severity}</Badge> },
               { label: 'ยาที่แพ้',     value: <><p className="font-medium">{drawer.med_name}</p><p className="text-xs text-slate-400">{drawer.med_generic_name}</p></>, span: true },
               { label: 'หมวดยา',       value: drawer.med_medical_category || '—' },
-              { label: 'วันที่รายงาน', value: fmtDate(drawer.reported_at) },
-              { label: 'วันที่บันทึก', value: fmtDate(drawer.created_at, true), span: true },
               { label: 'อาการ',        value: drawer.symptoms, span: true },
               { label: 'รายละเอียด',   value: drawer.description || '—', span: true },
+              { label: 'วันที่รายงาน', value: fmtDate(drawer.reported_at) },
+              { label: 'วันที่บันทึก', value: fmtDate(drawer.created_at, true), span: true },
             ]} />
           </DrawerSection>
         )}

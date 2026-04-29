@@ -449,13 +449,13 @@ export default function DeliveryPage() {
                 { label: 'สถานะ',        value: statusBadge(drawer.status) },
                 { label: 'วิธีจัดส่ง',  value: drawer.delivery_method || '—' },
                 { label: 'วันที่',        value: fmtDate(drawer.delivery_date) },
+                { label: 'เวลาจัดส่งจริง',  value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
                 { label: 'ผู้รับ',          value: drawer.receiver_name || '—' },
                 { label: 'เบอร์โทรผู้รับ', value: drawer.receiver_phone || '—' },
                 { label: 'ที่อยู่',         value: drawer.address || '—', span: true },
                 { label: 'ผู้จัดส่ง',       value: drawer.courier_name || '—' },
                 { label: 'เบอร์ผู้จัดส่ง',  value: drawer.courier_phone || '—' },
                 { label: 'เลขพัสดุ',        value: drawer.tracking_number || '—' },
-                { label: 'เวลาจัดส่งจริง',  value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
                 { label: 'หมายเหตุ',         value: drawer.note || '—', span: true },
               ]} />
             </DrawerSection>

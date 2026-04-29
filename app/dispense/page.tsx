@@ -1405,20 +1405,15 @@ export default function DispensePage() {
                 </div>
               </button>
               <DrawerGrid items={[
-                { label: 'กรุ๊ปเลือด', value: drawerFull.blood_group ?? '—' },
-                { label: 'สิทธิ์การรักษา', value: treatmentRightLabel(drawerFull.treatment_right, drawerFull.treatment_right_note) ?? '—' },
                 { label: 'แพทย์', value: drawerFull.doctor_name || '—' },
                 { label: 'วอร์ด', value: drawerFull.ward ?? '—' },
+                { label: 'กรุ๊ปเลือด', value: drawerFull.blood_group ?? '—' },
+                { label: 'สิทธิ์การรักษา', value: treatmentRightLabel(drawerFull.treatment_right, drawerFull.treatment_right_note) ?? '—' },
                 { label: 'วินิจฉัย', value: drawerFull.diagnosis ?? '—', span: true },
                 { label: 'PMH', value: drawerFull.PMH ?? '—', span: true },
                 { label: 'วันที่สร้าง', value: fmtDate(drawerFull.created_at, true) },
-                { label: 'ผู้จ่ายยา', value: drawerFull.dispensed_by_name || '—' },
                 { label: 'จ่ายเมื่อ', value: fmtDate(drawerFull.dispensed_at, true) },
-                {
-                  label: 'ยอดรวม', value: drawerFull.total_cost > 0
-                    ? <span className="font-bold text-primary-700">{Number(drawerFull.total_cost).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
-                    : '—'
-                },
+                { label: 'ผู้จ่ายยา', value: drawerFull.dispensed_by_name || '—' },
                 { label: 'หมายเหตุ', value: drawerFull.note ?? '—', span: true },
               ]} />
             </DrawerSection>

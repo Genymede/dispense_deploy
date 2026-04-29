@@ -115,11 +115,11 @@ export default function DeliveryPage() {
         onEdit={openEdit}
         fields={[
           { label: 'ผู้ป่วย',      key: '_patient', type: 'patient' },
+          { label: 'สถานะ',       key: 'status', type: 'badge_status', statusMap: STATUS_MAP },
           { label: 'วิธีจัดส่ง',  key: 'delivery_method' },
+          { label: 'วันที่',       key: 'delivery_date', type: 'date' },
           { label: 'ผู้รับ',       key: 'receiver_name' },
           { label: 'เบอร์โทร',    key: 'receiver_phone' },
-          { label: 'สถานะ',       key: 'status', type: 'badge_status', statusMap: STATUS_MAP },
-          { label: 'วันที่',       key: 'delivery_date', type: 'date' },
           { label: 'ที่อยู่',      key: 'address', span: true },
           { label: 'หมายเหตุ',    key: 'note', span: true },
         ]}

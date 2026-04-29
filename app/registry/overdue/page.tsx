@@ -143,17 +143,17 @@ export default function OverduePage() {
         title="ยาค้างจ่าย" subtitle={r => r.med_name}
         onEdit={openEdit}
         fields={[
-          { label: 'ชื่อยา (ทะเบียน)', key: '_drug', type: 'drug' },
-          { label: 'รายการในคลัง', key: 'sub_drug_name' },
-          { label: 'รูปแบบ/บรรจุ', key: 'packaging_type' },
-          { label: 'ที่เก็บ', key: 'location' },
           { label: 'ผู้ป่วย', key: '_patient', type: 'patient' },
           { label: 'แพทย์', key: 'doctor_name' },
-          { label: 'จำนวน', key: 'quantity' },
           {
             label: 'สถานะ', key: 'dispense_status', type: 'template',
             template: r => r.dispense_status ? 'จ่ายแล้ว' : 'ค้างจ่าย'
           },
+          { label: 'ชื่อยา (ทะเบียน)', key: '_drug', type: 'drug' },
+          { label: 'รายการในคลัง', key: 'sub_drug_name' },
+          { label: 'รูปแบบ/บรรจุ', key: 'packaging_type' },
+          { label: 'ที่เก็บ', key: 'location' },
+          { label: 'จำนวน', key: 'quantity' },
           { label: 'วันที่', key: 'time', type: 'datetime' },
         ]}
       />

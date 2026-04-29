@@ -252,20 +252,20 @@ export default function RadPage() {
           </div>
         ) : null}
         fields={[
-          { label: 'ยาปฏิชีวนะ',       key: '_drug',               type: 'drug',         span: true },
-          { label: 'จำนวน',             key: 'quantity',            type: 'template',     template: r => `${r.quantity} ${r.unit || ''}` },
-          { label: 'สถานะ',             key: 'status',              type: 'badge_status', statusMap: STATUS_MAP },
           { label: 'ผู้ป่วย',           key: 'patient_name' },
           { label: 'Ward',              key: 'ward' },
+          { label: 'สถานะ',             key: 'status',              type: 'badge_status', statusMap: STATUS_MAP },
+          { label: 'ยาปฏิชีวนะ',       key: '_drug',               type: 'drug',         span: true },
+          { label: 'จำนวน',             key: 'quantity',            type: 'template',     template: r => `${r.quantity} ${r.unit || ''}` },
           { label: 'การวินิจฉัย',       key: 'diagnosis',           span: true },
           { label: 'ตำแหน่งติดเชื้อ',  key: 'infection_site' },
           { label: 'ผล Culture',        key: 'culture_result',      type: 'template',     template: r => CULTURE_OPTIONS.find(o => o.value === r.culture_result)?.label ?? r.culture_result },
           { label: 'เหตุผลทางคลินิก',  key: 'clinical_indication', span: true },
           { label: 'ระยะเวลา (วัน)',    key: 'duration_days' },
+          { label: 'วันที่ขอ',          key: 'request_time',        type: 'datetime',     span: true },
           { label: 'แพทย์ผู้สั่ง',      key: 'prescriber_name' },
           { label: 'ผู้ขอ',             key: 'requested_by_name' },
           { label: 'ผู้อนุมัติ',        key: 'approved_by_name' },
-          { label: 'วันที่ขอ',          key: 'request_time',        type: 'datetime',     span: true },
           { label: 'หมายเหตุ',          key: 'note',                span: true },
         ]}
       />
