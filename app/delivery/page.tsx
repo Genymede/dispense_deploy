@@ -423,13 +423,29 @@ export default function DeliveryPage() {
         {drawer && (
           <>
             <DrawerSection title="ข้อมูลการจัดส่ง">
+              <button
+                onClick={() => drawer.patient_id && setPatientDrawerId(drawer.patient_id)}
+                className="flex items-center gap-3 mb-3 w-full text-left group"
+              >
+                {drawer.patient_photo ? (
+                  <img
+                    src={`/images/patient_image/${drawer.patient_photo}`}
+                    alt={drawer.patient_name || 'ผู้ป่วย'}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-slate-200 shadow-sm flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 border-2 border-slate-200">
+                    <span className="text-primary-600 font-bold text-xl">{(drawer.patient_name || '?')[0]}</span>
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-semibold text-slate-800 truncate group-hover:text-primary-600 transition-colors underline decoration-dotted underline-offset-2">
+                    {drawer.patient_name || 'ไม่ระบุ'}
+                  </p>
+                  <p className="text-xs text-slate-400 font-mono">HN: {drawer.hn_number || '—'}</p>
+                </div>
+              </button>
               <DrawerGrid items={[
-                { label: 'ผู้ป่วย',      value: drawer.patient_id
-                    ? <button onClick={() => setPatientDrawerId(drawer.patient_id)} className="text-left hover:text-primary-600 transition-colors">
-                        <p className="font-medium underline decoration-dotted">{drawer.patient_name}</p>
-                        <p className="text-xs text-slate-400">HN: {drawer.hn_number}</p>
-                      </button>
-                    : <><p className="font-medium">{drawer.patient_name}</p><p className="text-xs text-slate-400">HN: {drawer.hn_number}</p></> },
                 { label: 'สถานะ',        value: statusBadge(drawer.status) },
                 { label: 'วิธีจัดส่ง',  value: drawer.delivery_method || '—' },
                 { label: 'วันที่',        value: fmtDate(drawer.delivery_date) },
