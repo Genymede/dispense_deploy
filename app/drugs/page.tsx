@@ -67,7 +67,7 @@ export default function DrugsPage() {
     if (!receiveForm.quantity || Number(receiveForm.quantity) <= 0) { toast.error('กรุณาระบุจำนวน'); return; }
     setReceiveSaving(true);
     try {
-      await stockApi.receiveFromMain({
+      const res = await stockApi.receiveFromMain({
         med_sid: receiveForm.med_sid,
         quantity: Number(receiveForm.quantity),
         lot_number: receiveForm.lot_number || undefined,
@@ -76,10 +76,17 @@ export default function DrugsPage() {
         reference_no: receiveForm.reference_no || undefined,
         note: receiveForm.note || undefined,
       });
-      toast.success('บันทึกการรับยาจากคลังหลักแล้ว');
       setShowReceiveModal(false);
       setReceiveForm(emptyReceiveForm);
-      loadDrugs();
+      await loadDrugs();
+      if ((res.data as any).auto_created) {
+        toast('สร้างรายการยาใหม่อัตโนมัติแล้ว — กรุณาเพิ่มข้อมูลให้ครบ (ชื่อไทย, ชื่ออังกฤษ, หมวดหมู่ ฯลฯ)', {
+          icon: '⚠️', duration: 8000,
+          style: { background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a' },
+        });
+      } else {
+        toast.success('บันทึกการรับยาจากคลังหลักแล้ว');
+      }
     } catch (e: any) { toast.error(e.message); }
     finally { setReceiveSaving(false); }
   };
@@ -268,6 +275,7 @@ export default function DrugsPage() {
                     const isLow = !isExp && d.min_quantity != null && d.current_stock < d.min_quantity;
                     const statusV = isExp ? 'danger' : isLow ? 'warning' : 'success';
                     const statusL = isExp ? 'หมดอายุ' : isLow ? 'สต็อกต่ำ' : 'ปกติ';
+                    const isIncomplete = !d.med_showname && !d.med_showname_eng && !d.med_thai_name;
                     return (
                       <tr key={d.med_sid} className="table-row-hover cursor-pointer" onClick={() => setViewDrug(d)}>
                         {/* รูป */}
@@ -285,7 +293,14 @@ export default function DrugsPage() {
                         </td>
                         {/* ชื่อยา */}
                         <td className="px-4 py-2.5">
-                          <p className="font-medium text-slate-800 leading-tight">{d.med_showname || d.med_name}</p>
+                          <div className="flex items-center gap-1.5 leading-tight">
+                            <p className="font-medium text-slate-800">{d.med_showname || d.med_name}</p>
+                            {isIncomplete && (
+                              <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                                ข้อมูลไม่ครบ
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-slate-400 mt-0.5">{d.med_generic_name || d.med_name}</p>
                         </td>
                         {/* หมวดหมู่ */}
@@ -405,6 +420,17 @@ export default function DrugsPage() {
       >
         {viewDrug && (
           <>
+            {/* คำเตือน: ข้อมูลไม่ครบ */}
+            {!viewDrug.med_showname && !viewDrug.med_showname_eng && !viewDrug.med_thai_name && (
+              <div className="mx-4 mt-4 mb-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex items-start gap-2.5">
+                <span className="text-amber-500 text-base mt-0.5">⚠️</span>
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">ข้อมูลยายังไม่ครบถ้วน</p>
+                  <p className="text-xs text-amber-700 mt-0.5">ยานี้ถูกสร้างอัตโนมัติจากการรับยาของคลังหลัก กรุณากดแก้ไขเพื่อเพิ่มชื่อไทย ชื่ออังกฤษ หมวดหมู่ และข้อมูลอื่นๆ ให้ครบถ้วน</p>
+                </div>
+              </div>
+            )}
+
             {/* 1. รายละเอียด Lot — สำคัญที่สุด */}
             <DrawerSection title={`รายละเอียด Lot (${viewLots.length} lot)`}>
               {viewLots.length === 0 ? (
