@@ -1112,7 +1112,7 @@ export default function DispensePage() {
               </div>
 
               {/* allergies */}
-              {dispenseAllergies.length > 0 && (
+              {dispenseAllergies.length > 0 ? (
                 <div className="rounded-lg border border-red-200 bg-red-50 overflow-hidden">
                   <p className="text-[11px] font-bold uppercase tracking-wide text-red-500 px-3 pt-2.5 pb-1">
                     ⚠ ยาที่แพ้ ({dispenseAllergies.length})
@@ -1134,6 +1134,11 @@ export default function DispensePage() {
                       </div>
                     ))}
                   </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-green-200 bg-green-50">
+                  <span className="text-green-500 text-sm">✓</span>
+                  <span className="text-xs text-green-700 font-medium">ไม่มียาที่แพ้</span>
                 </div>
               )}
 
