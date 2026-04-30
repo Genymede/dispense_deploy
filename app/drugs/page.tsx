@@ -4,13 +4,13 @@ import { useSearchParams } from 'next/navigation';
 import MainLayout from '@/components/MainLayout';
 import { Button, Input, Select, Badge, Modal, Card, ConfirmDialog, EmptyState, Spinner, Textarea } from '@/components/ui';
 import DetailDrawer, { DrawerSection, DrawerGrid } from '@/components/DetailDrawer';
-import { drugApi, stockApi, type Drug, type MedTableItem, type StockLot } from '@/lib/api';
+import { drugApi, stockApi, api, type Drug, type MedTableItem, type StockLot } from '@/lib/api';
 import { Plus, Search, Filter, Edit2, Trash2, Eye, Package, ArrowDownToLine } from 'lucide-react';
 import SearchSelect from '@/components/SearchSelect';
 import toast from 'react-hot-toast';
 import { fmtDate } from '@/lib/dateUtils';
 
-const PACKAGING_TYPES = ['เม็ด', 'ซอง', 'กล่อง', 'ขวด', 'หลอด'];
+const DEFAULT_PACKAGING = ['เม็ด', 'แคปซูล', 'ซอง', 'กล่อง', 'ขวด', 'หลอด'];
 
 const emptyForm = {
   med_id: 0,
@@ -35,7 +35,8 @@ export default function DrugsPage() {
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories,    setCategories]    = useState<string[]>([]);
+  const [packagingTypes, setPackagingTypes] = useState<string[]>(DEFAULT_PACKAGING);
   const [page, setPage] = useState(1);
   const perPage = 30;
 
@@ -130,6 +131,9 @@ export default function DrugsPage() {
 
   useEffect(() => {
     drugApi.getCategories().then((r) => setCategories(r.data)).catch(() => { });
+    api.get('/settings').then(r => {
+      if (r.data.drug_units) try { setPackagingTypes(JSON.parse(r.data.drug_units)); } catch { }
+    }).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -398,7 +402,7 @@ export default function DrugsPage() {
         )}
         <div className="grid grid-cols-2 gap-4">
           <Select label="รูปแบบบรรจุ" required value={form.packaging_type} onChange={(e) => f('packaging_type', e.target.value)}
-            options={PACKAGING_TYPES.map((p) => ({ value: p, label: p }))} placeholder="เลือกรูปแบบ" />
+            options={packagingTypes.map((p) => ({ value: p, label: p }))} placeholder="เลือกรูปแบบ" />
           <Input label="ชื่อแสดง (ไทย)" value={form.med_showname} onChange={(e) => f('med_showname', e.target.value)} />
           <Input label="ชื่อแสดง (อังกฤษ)" value={form.med_showname_eng} onChange={(e) => f('med_showname_eng', e.target.value)} />
           <Input label="ตำแหน่งที่เก็บ" placeholder="A-01" value={form.location} onChange={(e) => f('location', e.target.value)} />

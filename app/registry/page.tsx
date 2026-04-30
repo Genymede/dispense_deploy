@@ -1,18 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MainLayout from '@/components/MainLayout';
 import DataTable, { ColDef } from '@/components/DataTable';
 import { CrudModal, FormGrid, FormSpan, RowActions } from '@/components/CrudModal';
 import DetailDrawer, { DrawerSection, DrawerGrid } from '@/components/DetailDrawer';
 import { Input, Select, Textarea, Badge, Spinner } from '@/components/ui';
-import { registryApi, crudApi, type MedRegistryItem } from '@/lib/api';
+import { registryApi, crudApi, api, type MedRegistryItem } from '@/lib/api';
 import { BookOpen, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { thaiToday, thaiDaysAgo, fmtDate } from '@/lib/dateUtils';
 
 const CATEGORIES = ['ยาปฏิชีวนะ','ยาแก้ปวด','ยาลดความดัน','ยาเบาหวาน','ยาหัวใจ','ยาระบบทางเดินอาหาร','วิตามิน','อื่นๆ'];
 const SEVERITIES = ['ยาทั่วไป','ยาอันตราย','ยาควบคุมพิเศษ','ยาเสพติดให้โทษ','วัตถุออกฤทธิ์'];
-const UNITS = ['เม็ด','แคปซูล','ขวด','ซอง','หลอด','มล.','กรัม','ชิ้น'];
+const DEFAULT_UNITS = ['เม็ด','แคปซูล','ขวด','ซอง','หลอด','มล.','กรัม','ชิ้น'];
 const PREG = ['A','B','C','D','X'];
 const PREG_TH: Record<string,string> = { A:'A — ปลอดภัย', B:'B — ค่อนข้างปลอดภัย', C:'C — ระวัง', D:'D — มีความเสี่ยง', X:'X — ห้ามใช้' };
 
@@ -42,6 +42,13 @@ const cols: ColDef[] = [
 export default function RegistryPage() {
   const [form, setForm] = useState<any>(empty);
   const [editingId, setEditingId] = useState<number|null>(null);
+  const [drugUnits, setDrugUnits] = useState<string[]>(DEFAULT_UNITS);
+
+  useEffect(() => {
+    api.get('/settings').then(r => {
+      if (r.data.drug_units) try { setDrugUnits(JSON.parse(r.data.drug_units)); } catch { }
+    }).catch(() => { });
+  }, []);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reload, setReload] = useState(0);
@@ -141,7 +148,7 @@ export default function RegistryPage() {
           <Select label="รูปแบบยา" value={form.med_dosage_form} onChange={e => f('med_dosage_form', e.target.value)}
             options={['Tablet','Capsule','Syrup','Injection','Cream','Ointment','Inhaler','Powder','Solution','Suppository'].map(d => ({ value: d, label: d }))} placeholder="เลือกรูปแบบ" />
           <Select label="หน่วยนับ" required value={form.med_counting_unit} onChange={e => f('med_counting_unit', e.target.value)}
-            options={UNITS.map(u => ({ value: u, label: u }))} />
+            options={drugUnits.map(u => ({ value: u, label: u }))} />
           <Select label="ระดับยา" value={form.med_severity} onChange={e => f('med_severity', e.target.value)}
             options={SEVERITIES.map(s => ({ value: s, label: s }))} />
           <Input label="ราคาต้นทุน (บาท)" type="number" step="0.01" value={form.med_cost_price} onChange={e => f('med_cost_price', e.target.value)} />

@@ -4,10 +4,10 @@ import MainLayout from '@/components/MainLayout';
 import { Card, Input, Button, Badge, Spinner } from '@/components/ui';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { Building2, Bell, Users, Save, RefreshCw, UserCircle } from 'lucide-react';
+import { Building2, Bell, Users, Save, RefreshCw, UserCircle, FlaskConical, X, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-type Tab = 'general' | 'alerts' | 'users';
+type Tab = 'general' | 'alerts' | 'units' | 'users';
 
 const ALERT_TYPES = [
   { key: 'alert_enabled_low_stock',   label: 'ยาสต็อกต่ำกว่าขั้นต่ำ',         severity: 'วิกฤต',   def: true  },
@@ -47,6 +47,11 @@ export default function SettingsPage() {
   const [profile,       setProfile]      = useState<Profile>({ firstname_th: '', lastname_th: '', firstname_en: '', lastname_en: '', email: '', role_name_th: '' });
   const [savingProfile, setSavingProfile] = useState(false);
 
+  // units
+  const DEFAULT_UNITS = ['เม็ด','แคปซูล','ซอง','กล่อง','ขวด','หลอด','มล.','กรัม','ชิ้น','ไวแอล','แอมพูล'];
+  const [drugUnits,    setDrugUnits]    = useState<string[]>(DEFAULT_UNITS);
+  const [newUnitInput, setNewUnitInput] = useState('');
+
   const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => { checkApi(); loadSettings(); }, []);
@@ -61,6 +66,7 @@ export default function SettingsPage() {
       if (d.dept_name)        setDeptName(d.dept_name);
       if (d.near_expiry_days) setNearExpiryDays(d.near_expiry_days);
       if (d.low_stock_pct)    setLowStockPct(d.low_stock_pct);
+      if (d.drug_units)       { try { setDrugUnits(JSON.parse(d.drug_units)); } catch { } }
       setAlertEnabled(prev => {
         const next = { ...prev };
         for (const t of ALERT_TYPES) {
@@ -80,6 +86,7 @@ export default function SettingsPage() {
         dept_name:        deptName,
         near_expiry_days: nearExpiryDays,
         low_stock_pct:    lowStockPct,
+        drug_units:       JSON.stringify(drugUnits),
       };
       for (const t of ALERT_TYPES) payload[t.key] = String(alertEnabled[t.key]);
       await api.put('/settings', payload);
@@ -137,6 +144,7 @@ export default function SettingsPage() {
   const TABS = [
     { key: 'general', label: 'ทั่วไป',         icon: <Building2 size={15} /> },
     { key: 'alerts',  label: 'การแจ้งเตือน',   icon: <Bell size={15} /> },
+    { key: 'units',   label: 'หน่วยยา',         icon: <FlaskConical size={15} /> },
     { key: 'users',   label: 'ผู้ใช้งาน',       icon: <Users size={15} /> },
   ] as const;
 
@@ -229,6 +237,52 @@ export default function SettingsPage() {
                 </div>
               </Card>
             </>
+          )}
+
+          {/* ── หน่วยยา ── */}
+          {tab === 'units' && (
+            <Card>
+              <h3 className="text-sm font-semibold text-slate-700 mb-1 flex items-center gap-2">
+                <FlaskConical size={15} />หน่วยยา / รูปแบบบรรจุ
+              </h3>
+              <p className="text-xs text-slate-400 mb-4">ใช้เป็น dropdown ในหน้า เพิ่มยาในคลัง และ ทะเบียนยาหลัก</p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {drugUnits.map((u, i) => (
+                  <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-700">
+                    {u}
+                    <button onClick={() => setDrugUnits(prev => prev.filter((_, j) => j !== i))}
+                      className="text-slate-400 hover:text-red-500 transition-colors">
+                      <X size={13} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text" value={newUnitInput}
+                  onChange={e => setNewUnitInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newUnitInput.trim()) {
+                      if (!drugUnits.includes(newUnitInput.trim()))
+                        setDrugUnits(prev => [...prev, newUnitInput.trim()]);
+                      setNewUnitInput('');
+                    }
+                  }}
+                  placeholder="พิมพ์หน่วยใหม่ แล้วกด Enter หรือ +"
+                  className="flex-1 h-9 px-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300"
+                />
+                <button
+                  onClick={() => {
+                    if (newUnitInput.trim() && !drugUnits.includes(newUnitInput.trim())) {
+                      setDrugUnits(prev => [...prev, newUnitInput.trim()]);
+                      setNewUnitInput('');
+                    }
+                  }}
+                  className="h-9 px-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-1 text-sm">
+                  <Plus size={14} /> เพิ่ม
+                </button>
+              </div>
+            </Card>
           )}
 
           {/* ── ผู้ใช้งาน ── */}
