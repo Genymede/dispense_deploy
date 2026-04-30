@@ -231,10 +231,7 @@ export default function DrugsPage() {
     <MainLayout
       title="รายการยาในคลังย่อย"
       subtitle={`ทั้งหมด ${total} รายการ`}
-      actions={<div className="flex gap-2">
-        <Button variant="secondary" icon={<ArrowDownToLine size={15} />} onClick={() => { setReceiveForm(emptyReceiveForm); setReceiveResetKey(k => k + 1); setShowReceiveModal(true); }}>รับยาจากคลังหลัก</Button>
-        <Button icon={<Plus size={15} />} onClick={openCreate}>เพิ่มยาในคลัง</Button>
-      </div>}
+      actions={<Button icon={<Plus size={15} />} onClick={openCreate}>เพิ่มยาในคลัง</Button>}
     >
       {/* Filters */}
       <Card className="mb-5">

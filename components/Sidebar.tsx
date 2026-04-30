@@ -1,11 +1,9 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/lib/auth";
 import {
   Package, Truck, Pill, Bell, Settings, ChevronRight,
-  BarChart3, BookOpen, LogOut, ChevronDown,
+  BarChart3, BookOpen, ChevronDown,
   Database, ShieldAlert, FlaskConical, Repeat2,
   Stethoscope, ClipboardList, Clock, FileText,
   AlertTriangle, FileWarning,
@@ -132,74 +130,26 @@ function NavLink({ href, label, icon: Icon, badge }: NavItem & { badge?: number 
   );
 }
 
-function SidebarFooter() {
-  const { user, logout } = useAuth();
-
-  const displayName = user?.email ?? null;
-  const initials = displayName?.[0]?.toUpperCase() ?? 'U';
-  const roleLabel = user?.role_name ?? 'กำลังโหลด...';
-
-  return (
-    <div className="px-3 py-3 border-t border-white/10 flex-shrink-0">
-      <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-white/8 hover:bg-white/12 transition-colors">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-300 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-          <span className="text-white text-xs font-bold">{initials}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-white truncate">
-            {displayName ?? 'ผู้ใช้งาน'}
-          </p>
-          <p className="text-[10px] text-blue-200/60 truncate">
-            {roleLabel}
-          </p>
-        </div>
-        <button onClick={logout}
-          className="text-blue-200/40 hover:text-red-400 transition-colors flex-shrink-0 p-1 rounded-lg hover:bg-white/10" title="ออกจากระบบ">
-          <LogOut size={14} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function Sidebar({ alertCount = 0 }: { alertCount?: number }) {
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Header */}
-      <div className="px-4 pt-5 pb-4 border-b border-white/10 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-md border border-white/20">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white leading-tight">โรงพยาบาลวัดห้วยปลากั้ง</p>
-            <p className="text-[10px] text-blue-200/70 leading-tight">ระบบจ่ายยา</p>
-          </div>
-        </div>
+    <nav className="p-2.5 space-y-0.5">
+      <NavLink href="/dispense" label="จ่ายยา" icon={Package} />
+      <NavLink href="/delivery" label="จัดส่งยา" icon={Truck} />
+      <div className="pt-2 pb-0.5 px-2">
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">ทะเบียน & รายงาน</p>
       </div>
-
-      {/* Nav */}
-      <nav className="flex-1 p-2.5 space-y-0.5 overflow-y-auto">
-        <NavLink href="/dispense" label="จ่ายยา" icon={Package} />
-        <NavLink href="/delivery" label="จัดส่งยา" icon={Truck} />
-        <div className="pt-2 pb-0.5 px-2">
-          <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">ทะเบียน & รายงาน</p>
-        </div>
-        <CollapseGroup group={registryGroup} />
-        <CollapseGroup group={reportsGroup} />
-        <div className="pt-2 pb-0.5 px-2">
-          <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">คลังยา</p>
-        </div>
-        <CollapseGroup group={warehouseGroup} />
-        <div className="pt-2 pb-0.5 px-2">
-          <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">อื่นๆ</p>
-        </div>
-        <NavLink href="/sticker" label="สติ๊กเกอร์ยา" icon={Tag} />
-        <NavLink href="/alerts" label="แจ้งเตือน" icon={Bell} badge={alertCount} />
-        <NavLink href="/settings" label="ตั้งค่า" icon={Settings} />
-      </nav>
-
-      <SidebarFooter />
-    </div>
+      <CollapseGroup group={registryGroup} />
+      <CollapseGroup group={reportsGroup} />
+      <div className="pt-2 pb-0.5 px-2">
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">คลังยา</p>
+      </div>
+      <CollapseGroup group={warehouseGroup} />
+      <div className="pt-2 pb-0.5 px-2">
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">อื่นๆ</p>
+      </div>
+      <NavLink href="/sticker" label="สติ๊กเกอร์ยา" icon={Tag} />
+      <NavLink href="/alerts" label="แจ้งเตือน" icon={Bell} badge={alertCount} />
+      <NavLink href="/settings" label="ตั้งค่า" icon={Settings} />
+    </nav>
   );
 }
