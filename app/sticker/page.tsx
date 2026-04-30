@@ -8,12 +8,30 @@ import toast from 'react-hot-toast';
 
 const STORAGE_KEY = 'selected_printer_name';
 
+function buildMockLabel() {
+  const printedAt = new Date().toLocaleString('th-TH', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'Asia/Bangkok',
+  });
+  return [
+    'นายสมชาย ใจดี',
+    `HN: 67-001234   ${printedAt}`,
+    'RX: RX-67-000089',
+    '--------------------',
+    'Amoxicillin (500) Cap',
+    'จำนวน: 21 แคปซูล  ราคา: 52.50 บาท',
+    'วิธีใช้: รับประทาน TID',
+    'แผนก: OPD',
+  ].join('\n');
+}
+
 export default function StickerPage() {
   const [printers, setPrinters]                   = useState<Printer[]>([]);
   const [loadingPrinters, setLoadingPrinters]     = useState(false);
   const [selectedName, setSelectedName]           = useState('');
   const [printerName, setPrinterName]             = useState('');
-  const [textToPrint, setTextToPrint]             = useState('Hello');
+  const [textToPrint, setTextToPrint]             = useState(buildMockLabel);
   const [printing, setPrinting]                   = useState(false);
 
   const fetchPrinters = useCallback(async () => {
