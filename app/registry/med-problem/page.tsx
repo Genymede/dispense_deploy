@@ -37,7 +37,8 @@ const TYPE_V: Record<string, 'danger' | 'warning' | 'info' | 'gray'> = {
 };
 
 const emptyForm = {
-  med_id: 0, med_label: '',
+  med_id: 0,     med_label: '',
+  patient_id: 0, patient_label: '',
   reporter_id: 0, reporter_label: '',
   problem_type: '',
   description: '',
@@ -46,12 +47,12 @@ const emptyForm = {
 };
 
 const cols: ColDef[] = [
-  { key: 'med_name', label: 'ยา',
-    render: r => <><p className="font-medium">{r.med_name}</p><p className="text-xs text-slate-400">{r.med_generic_name}</p></> },
   { key: 'patient_name', label: 'ผู้ป่วย',
     render: r => r.patient_name
-      ? <><p className="font-medium">{r.patient_name}</p><p className="text-xs text-slate-400">{r.hn_number}</p></>
+      ? <><p className="font-medium">{r.patient_name}</p><p className="text-xs text-slate-400">HN: {r.hn_number}</p></>
       : <span className="text-slate-300">—</span> },
+  { key: 'med_name', label: 'ยา',
+    render: r => <><p className="font-medium">{r.med_name}</p><p className="text-xs text-slate-400">{r.med_generic_name}</p></> },
   { key: 'problem_type', label: 'ประเภทปัญหา',
     render: r => (
       <Badge variant={TYPE_V[r.problem_type] ?? 'gray'}>
@@ -88,7 +89,8 @@ export default function MedProblemPage() {
 
   const openEdit = (row: any) => {
     setForm({
-      med_id: row.med_id, med_label: row.med_name || '',
+      med_id: row.med_id,         med_label: row.med_name || '',
+      patient_id: row.patient_id || 0, patient_label: row.patient_name || '',
       reporter_id: row.reported_by || 0, reporter_label: row.reported_by_name || '',
       problem_type: row.problem_type || '',
       description: row.description || '',
@@ -99,12 +101,14 @@ export default function MedProblemPage() {
   };
 
   const handleSave = async () => {
-    if (!form.med_id)       { toast.error('กรุณาเลือกยา');         return; }
-    if (!form.problem_type) { toast.error('กรุณาระบุประเภทปัญหา'); return; }
-    if (!form.description)  { toast.error('กรุณากรอกคำอธิบาย');    return; }
+    if (!form.patient_id)   { toast.error('กรุณาเลือกผู้ป่วย');      return; }
+    if (!form.med_id)       { toast.error('กรุณาเลือกยา');            return; }
+    if (!form.problem_type) { toast.error('กรุณาระบุประเภทปัญหา');    return; }
+    if (!form.description)  { toast.error('กรุณากรอกคำอธิบาย');       return; }
     setSaving(true);
     try {
       const payload = {
+        patient_id:   form.patient_id,
         med_id:       form.med_id,
         problem_type: form.problem_type,
         description:  form.description,
@@ -123,7 +127,7 @@ export default function MedProblemPage() {
     <MainLayout title="ปัญหาการใช้ยา" subtitle="Drug-Related Problems (DRP)">
       <DataTable cols={cols}
         fetcher={p => registryApi.getMedProblems(p).then(r => r.data)}
-        searchPlaceholder="ค้นหายา, คำอธิบาย..."
+        searchPlaceholder="ค้นหาผู้ป่วย, ยา, คำอธิบาย..."
         emptyIcon={<AlertTriangle size={36} />} emptyText="ไม่พบรายการ"
         deps={[reload]}
         onRowClick={row => setDrawer(row)}
@@ -135,12 +139,15 @@ export default function MedProblemPage() {
             onDelete={async () => { await crudApi.deleteMedProblem(row.mp_id); setReload(r => r + 1); }}
           />
         )}
-        deleteConfirmText={row => `ลบรายการปัญหาการใช้ยาของ "${row.med_name}"?`}
+        deleteConfirmText={row => `ลบรายการปัญหาการใช้ยาของ "${row.patient_name || row.med_name}"?`}
       />
 
       <CrudModal open={showModal} onClose={() => setShowModal(false)}
         title="ปัญหาการใช้ยา" editingId={editingId} onSave={handleSave} saving={saving} size="lg">
         <FormGrid>
+          <SearchSelect type="patient" label="ผู้ป่วย" required
+            initialDisplay={form.patient_label} resetKey={resetKey}
+            onSelect={p => { f('patient_id', p?.patient_id ?? 0); f('patient_label', p?.full_name ?? ''); }} />
           <SearchSelect type="drug" label="ยา" required
             initialDisplay={form.med_label} resetKey={resetKey}
             onSelect={d => { f('med_id', d?.med_id ?? 0); f('med_label', d?.med_name ?? ''); }} />
@@ -150,11 +157,11 @@ export default function MedProblemPage() {
           <Select label="สถานะ" value={String(form.is_resolved)}
             onChange={e => f('is_resolved', e.target.value === 'true')}
             options={[{ value: 'false', label: 'ยังไม่แก้ไข' }, { value: 'true', label: 'แก้ไขแล้ว' }]} />
-          <Input label="วันที่รายงาน" type="datetime-local"
-            value={form.reported_at} onChange={e => f('reported_at', e.target.value)} />
           <SearchSelect type="user" label="ผู้รายงาน"
             initialDisplay={form.reporter_label} resetKey={resetKey}
             onSelect={u => { f('reporter_id', u?.uid ?? 0); f('reporter_label', u?.full_name ?? ''); }} />
+          <Input label="วันที่รายงาน" type="datetime-local"
+            value={form.reported_at} onChange={e => f('reported_at', e.target.value)} />
           <div className="sm:col-span-2">
             <Textarea label="คำอธิบาย" required value={form.description}
               onChange={e => f('description', e.target.value)} rows={4} />
@@ -163,25 +170,25 @@ export default function MedProblemPage() {
       </CrudModal>
 
       <DetailDrawer open={!!drawer} onClose={() => setDrawer(null)}
-        title={drawer ? `DRP: ${drawer.med_name}` : ''}
-        subtitle={drawer ? (drawer.patient_name || 'ไม่ระบุผู้ป่วย') : ''}>
+        title={drawer ? `DRP: ${drawer.patient_name || 'ไม่ระบุผู้ป่วย'}` : ''}
+        subtitle={drawer ? drawer.med_name : ''}>
         {drawer && (
           <DrawerSection title="รายละเอียดปัญหาการใช้ยา">
             <DrawerGrid items={[
-              { label: 'ยา',            value: <><p className="font-medium">{drawer.med_name}</p><p className="text-xs text-slate-400">{drawer.med_generic_name || ''}</p></>, span: true },
+              { label: 'ผู้ป่วย', value: drawer.patient_name
+                ? <><p className="font-medium">{drawer.patient_name}</p><p className="text-xs text-slate-400">HN: {drawer.hn_number}</p></>
+                : '—' },
+              { label: 'สถานะ', value: <Badge variant={drawer.is_resolved ? 'success' : 'warning'}>{drawer.is_resolved ? 'แก้ไขแล้ว' : 'ยังไม่แก้ไข'}</Badge> },
+              { label: 'ยา', value: <><p className="font-medium">{drawer.med_name}</p><p className="text-xs text-slate-400">{drawer.med_generic_name || ''}</p></>, span: true },
               { label: 'ประเภทปัญหา', value: (
                 <Badge variant={TYPE_V[drawer.problem_type] ?? 'gray'}>
                   {PROBLEM_TYPE_LABEL[drawer.problem_type] || drawer.problem_type || '—'}
                 </Badge>
               )},
-              { label: 'สถานะ',        value: <Badge variant={drawer.is_resolved ? 'success' : 'warning'}>{drawer.is_resolved ? 'แก้ไขแล้ว' : 'ยังไม่แก้ไข'}</Badge> },
-              { label: 'คำอธิบาย',    value: drawer.description, span: true },
-              { label: 'ผู้ป่วย',       value: drawer.patient_name
-                ? <><p className="font-medium">{drawer.patient_name}</p><p className="text-xs text-slate-400">HN: {drawer.hn_number}</p></>
-                : '—' },
+              { label: 'คำอธิบาย', value: drawer.description, span: true },
               { label: 'วันที่รายงาน', value: fmtDate(drawer.reported_at, true) },
               { label: 'วันที่บันทึก', value: fmtDate(drawer.created_at, true) },
-              { label: 'ผู้รายงาน',   value: drawer.reported_by_name || '—' },
+              { label: 'ผู้รายงาน', value: drawer.reported_by_name || '—' },
             ]} />
           </DrawerSection>
         )}
