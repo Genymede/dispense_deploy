@@ -130,7 +130,7 @@ export default function DashboardPage() {
             <StatCard label="รับยาเข้าวันนี้" value={stats.today_stock_in_count}  icon={<ArrowDownToLine size={20} />} color="blue"  trend="ครั้ง" />
             <StatCard label="รอจ่ายยา"       value={stats.pending_prescriptions} icon={<ClipboardCheck size={20} />}  color="amber" trend="ใบสั่งยา" trendUp={false} />
             <StatCard label="Queue รอ"       value={stats.queue_waiting}         icon={<Users size={20} />}           color="blue"
-              trend={`เรียกแล้ว ${stats.queue_called ?? 0} · เสร็จ ${stats.queue_completed_today ?? 0}`} />
+              trend={`รับยาสำเร็จวันนี้ ${stats.queue_completed_today ?? 0} ราย`} />
           </div>
 
           {/* ── Chart + Right panel ────────────────────────────────────────── */}
@@ -174,18 +174,14 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-sm font-semibold text-slate-700">Queue วันนี้</h2>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="grid grid-cols-2 gap-2 text-center">
                   <div className="py-2.5 bg-amber-50 rounded-xl">
                     <p className="text-2xl font-bold text-amber-600">{stats.queue_waiting}</p>
                     <p className="text-xs text-amber-600 mt-0.5">รอ</p>
                   </div>
-                  <div className="py-2.5 bg-blue-50 rounded-xl">
-                    <p className="text-2xl font-bold text-blue-600">{stats.queue_called ?? 0}</p>
-                    <p className="text-xs text-blue-600 mt-0.5">กำลังเรียก</p>
-                  </div>
                   <div className="py-2.5 bg-green-50 rounded-xl">
                     <p className="text-2xl font-bold text-green-600">{stats.queue_completed_today}</p>
-                    <p className="text-xs text-green-600 mt-0.5">เสร็จแล้ว</p>
+                    <p className="text-xs text-green-600 mt-0.5">รับยาสำเร็จ</p>
                   </div>
                 </div>
                 {stats.pending_prescriptions > 0 && (
