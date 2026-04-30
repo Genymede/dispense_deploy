@@ -173,7 +173,7 @@ export default function Sidebar({ alertCount = 0 }: { alertCount?: number }) {
             <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white leading-tight">โรวพยาบาลวัดห้วยปลากั้ง</p>
+            <p className="text-sm font-bold text-white leading-tight">โรงพยาบาลวัดห้วยปลากั้ง</p>
             <p className="text-[10px] text-blue-200/70 leading-tight">ระบบจ่ายยา</p>
           </div>
         </div>
