@@ -262,7 +262,11 @@ export function StatCard({ label, value, icon, trend, trendUp, color = "blue", o
         <p className="text-xs text-slate-500 mb-1">{label}</p>
         <p className={clsx("text-2xl font-bold", c.val)}>{value}</p>
         {trend && (
-          <p className={clsx("text-xs mt-1", trendUp ? "text-green-600" : "text-red-500")}>
+          <p className={clsx("text-xs mt-1",
+            trendUp === true  ? "text-green-600" :
+            trendUp === false ? "text-red-500"   :
+                                "text-slate-500"
+          )}>
             {trend}
           </p>
         )}

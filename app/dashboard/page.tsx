@@ -119,16 +119,16 @@ export default function DashboardPage() {
           {/* ── KPI Row 1: สุขภาพคลัง ────────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <StatCard label="รายการยาทั้งหมด" value={stats.total_drugs}       icon={<Pill size={20} />}          color="blue" />
-            <StatCard label="ยาสต็อกต่ำ"       value={stats.low_stock_count}   icon={<TrendingDown size={20} />}  color="amber" trend="ต้องสั่งเพิ่ม" />
+            <StatCard label="ยาสต็อกต่ำ"       value={stats.low_stock_count}   icon={<TrendingDown size={20} />}  color="amber" trend="ต้องสั่งเพิ่ม"   trendUp={false} />
             <StatCard label="ยาใกล้หมดอายุ"    value={stats.near_expiry_count} icon={<Calendar size={20} />}      color="amber" trend="ภายใน 30 วัน" />
-            <StatCard label="ยาหมดอายุ"        value={stats.expired_count}     icon={<AlertTriangle size={20} />} color="red"   trend="ต้องดำเนินการ" />
+            <StatCard label="ยาหมดอายุ"        value={stats.expired_count}     icon={<AlertTriangle size={20} />} color="red"   trend="ต้องดำเนินการ"  trendUp={false} />
           </div>
 
           {/* ── KPI Row 2: กิจกรรมวันนี้ ─────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StatCard label="จ่ายยาวันนี้"    value={stats.today_dispense_count}  icon={<Package size={20} />}        color="green" trend="ใบสั่งยา" />
             <StatCard label="รับยาเข้าวันนี้" value={stats.today_stock_in_count}  icon={<ArrowDownToLine size={20} />} color="blue"  trend="ครั้ง" />
-            <StatCard label="รอจ่ายยา"       value={stats.pending_prescriptions} icon={<ClipboardCheck size={20} />}  color="amber" trend="ใบสั่งยา" />
+            <StatCard label="รอจ่ายยา"       value={stats.pending_prescriptions} icon={<ClipboardCheck size={20} />}  color="amber" trend="ใบสั่งยา" trendUp={false} />
             <StatCard label="Queue รอ"       value={stats.queue_waiting}         icon={<Users size={20} />}           color="blue"
               trend={`เรียกแล้ว ${stats.queue_called ?? 0} · เสร็จ ${stats.queue_completed_today ?? 0}`} />
           </div>
