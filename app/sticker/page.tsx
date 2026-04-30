@@ -15,7 +15,7 @@ function buildMockLabel() {
     timeZone: 'Asia/Bangkok',
   });
   return [
-    'นายสมชาย ใจดี',
+    'นายพิมพ์ ทดสอบ',
     `HN: 67-001234   ${printedAt}`,
     'RX: RX-67-000089',
     '--------------------',
@@ -27,12 +27,12 @@ function buildMockLabel() {
 }
 
 export default function StickerPage() {
-  const [printers, setPrinters]                   = useState<Printer[]>([]);
-  const [loadingPrinters, setLoadingPrinters]     = useState(false);
-  const [selectedName, setSelectedName]           = useState('');
-  const [printerName, setPrinterName]             = useState('');
-  const [textToPrint, setTextToPrint]             = useState(buildMockLabel);
-  const [printing, setPrinting]                   = useState(false);
+  const [printers, setPrinters] = useState<Printer[]>([]);
+  const [loadingPrinters, setLoadingPrinters] = useState(false);
+  const [selectedName, setSelectedName] = useState('');
+  const [printerName, setPrinterName] = useState('');
+  const [textToPrint, setTextToPrint] = useState(buildMockLabel);
+  const [printing, setPrinting] = useState(false);
 
   const fetchPrinters = useCallback(async () => {
     setLoadingPrinters(true);
@@ -42,7 +42,7 @@ export default function StickerPage() {
       setPrinters(list);
 
       const stored = localStorage.getItem(STORAGE_KEY);
-      const match  = stored && list.find((p) => p.Name === stored);
+      const match = stored && list.find((p) => p.Name === stored);
       if (match) {
         setSelectedName(match.Name);
       } else if (list.length > 0) {
@@ -142,11 +142,10 @@ export default function StickerPage() {
             <div className="space-y-2">
               {printers.map((p, i) => (
                 <label key={i}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedName === p.Name
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedName === p.Name
                       ? 'border-primary-300 bg-primary-50'
                       : 'border-slate-100 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
