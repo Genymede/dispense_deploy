@@ -537,7 +537,7 @@ export default function DispensePage() {
   const [queueStats, setQueueStats] = useState<any>(null);
   const [queueLoading, setQueueLoading] = useState(false);
   const [queueRefreshKey, setQueueRefreshKey] = useState(0);
-  const [queueDate, setQueueDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [queueDate, setQueueDate] = useState(() => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Bangkok' }));
 
   const loadQueue = useCallback(async () => {
     setQueueLoading(true);
@@ -548,7 +548,7 @@ export default function DispensePage() {
       ]);
       setQueueItems(listRes.data.data);
       setQueueStats(statsRes.data);
-    } catch { } finally { setQueueLoading(false); }
+    } catch (e: any) { toast.error(`โหลดคิวไม่ได้: ${e?.message ?? 'unknown'}`); } finally { setQueueLoading(false); }
   }, [queueRefreshKey, queueDate]);
 
   useEffect(() => { loadQueue(); }, [loadQueue]);
@@ -716,7 +716,11 @@ export default function DispensePage() {
                         <tr key={rx.prescription_id} className="table-row-hover cursor-pointer"
                           onClick={() => openDrawer(rx)}>
                           <td className="px-4 py-3 font-mono text-sm font-bold text-slate-600 whitespace-nowrap">
-                            {rxq ? rxq.queue_number : <span className="text-slate-300">—</span>}
+                            {rxq
+                              ? rxq.queue_number
+                              : (rx as any).queue_number
+                                ? (rx as any).queue_number
+                                : <span className="text-slate-300">—</span>}
                           </td>
                           <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
                             {fmtDate(rx.created_at)}
