@@ -39,6 +39,7 @@ const registryGroup: NavGroup = {
     { href: "/registry/delivery", label: "การจัดส่งยา", icon: Truck },
     { href: "/registry/overdue", label: "ยาค้างจ่าย", icon: Clock },
     { href: "/registry/rad", label: "RAD Registry", icon: FileWarning },
+    { href: "/registry/med-problem", label: "ปัญหาการใช้ยา", icon: AlertTriangle },
     { href: "/registry/med-movement", label: "การเคลื่อนไหวยา", icon: Activity },
   ],
 };

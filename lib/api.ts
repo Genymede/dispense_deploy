@@ -479,6 +479,9 @@ export const registryApi = {
 
   getRadRegistry: (params?: { search?: string; status?: string; page?: number; limit?: number }) =>
     api.get<{ data: any[]; total: number }>('/registry/rad', { params }),
+
+  getMedProblems: (params?: { search?: string; resolved?: string; type?: string; page?: number; limit?: number }) =>
+    api.get<{ data: any[]; total: number }>('/registry/med-problem', { params }),
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -595,6 +598,11 @@ export const crudApi = {
   createOverdue:     (data: any) => api.post('/registry/overdue', data),
   updateOverdue:     (id: number, data: any) => api.put(`/registry/overdue/${id}`, data),
   deleteOverdue:     (id: number) => api.delete(`/registry/overdue/${id}`),
+
+  // med problem
+  createMedProblem:  (data: any) => api.post('/registry/med-problem', data),
+  updateMedProblem:  (id: number, data: any) => api.put(`/registry/med-problem/${id}`, data),
+  deleteMedProblem:  (id: number) => api.delete(`/registry/med-problem/${id}`),
 
   // Form helpers
   searchPatients:    (q: string) => api.get<any[]>('/form/patients', { params: { q } }),
