@@ -90,6 +90,7 @@ export default function PatientDrawer({ patientId, open, onClose }: Props) {
             <DrawerGrid items={[
               //{ label: 'ชื่อ-นามสกุล', value: `${patient.first_name} ${patient.last_name}` },
               //{ label: 'HN', value: patient.hn_number ?? '—' },
+              { label: 'เพศ', value: patient.gender ?? '—' },
               { label: 'เลขบัตรประชาชน', value: patient.national_id ?? '—' },
               { label: 'วันเกิด', value: safeDate(patient.birthday) },
               { label: 'อายุ', value: patient.age_y != null ? `${patient.age_y} ปี ${patient.age_m ?? 0} เดือน` : calcAge(patient.birthday) },
