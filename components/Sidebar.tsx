@@ -19,9 +19,9 @@ const warehouseGroup: NavGroup = {
   label: "คลังยาย่อย", icon: Pill,
   basePath: "/___none___", // ไม่มี basePath เดียว ตรวจ active แยก
   items: [
-    { href: "/dashboard", label: "ภาพรวม", icon: LayoutDashboard },
-    { href: "/drugs", label: "รายการยาในคลัง", icon: Pill },
-    { href: "/stock-in", label: "รับยาเข้าคลัง", icon: ArrowDownToLine },
+    { href: "/dashboard", label: "ภาพรวมคลังย่อย", icon: LayoutDashboard },
+    { href: "/drugs", label: "ยาคงคลัง", icon: Pill },
+    { href: "/stock-in", label: "รายการคำขอเบิกยา", icon: ArrowDownToLine },
   ],
 };
 
