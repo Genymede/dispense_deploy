@@ -13,10 +13,10 @@ import toast from 'react-hot-toast';
 import { fmtDate } from '@/lib/dateUtils';
 
 const STATUS_MAP = {
-  Pending:    { label: 'รอดำเนินการ', variant: 'warning' as const },
-  Processing: { label: 'กำลังส่ง',    variant: 'info'    as const },
-  Delivered:  { label: 'ส่งแล้ว',     variant: 'success' as const },
-  Cancelled:  { label: 'ยกเลิก',      variant: 'danger'  as const },
+  Pending: { label: 'รอดำเนินการ', variant: 'warning' as const },
+  Processing: { label: 'กำลังส่ง', variant: 'info' as const },
+  Delivered: { label: 'ส่งแล้ว', variant: 'success' as const },
+  Cancelled: { label: 'ยกเลิก', variant: 'danger' as const },
 };
 
 interface MedItem {
@@ -39,40 +39,50 @@ const emptyForm = {
 };
 
 const cols: ColDef[] = [
-  { key: 'patient_name', label: 'ผู้ป่วย',
-    render: r => <><p className="font-medium">{r.patient_name}</p><p className="text-xs text-slate-400">{r.hn_number}</p></> },
-  { key: 'receiver_name',   label: 'ผู้รับ',       className: 'text-sm' },
-  { key: 'receiver_phone',  label: 'โทรผู้รับ',   className: 'text-xs font-mono' },
-  { key: 'delivery_method', label: 'วิธีส่ง',     className: 'text-xs' },
-  { key: 'courier_name',    label: 'ผู้จัดส่ง',   className: 'text-sm',
-    render: (r: any) => r.courier_name || <span className="text-slate-300">—</span> },
-  { key: 'status', label: 'สถานะ',
-    render: r => { const c = STATUS_MAP[r.status as keyof typeof STATUS_MAP] ?? { label: r.status, variant: 'gray' as const }; return <Badge variant={c.variant}>{c.label}</Badge>; } },
-  { key: 'delivery_date', label: 'วันที่',
-    render: r => fmtDate(r.delivery_date) },
-  { key: 'total_cost', label: 'ยอดรวม',
+  {
+    key: 'patient_name', label: 'ผู้ป่วย',
+    render: r => <><p className="font-medium">{r.patient_name}</p><p className="text-xs text-slate-400">{r.hn_number}</p></>
+  },
+  { key: 'receiver_name', label: 'ผู้รับ', className: 'text-sm' },
+  { key: 'receiver_phone', label: 'โทรผู้รับ', className: 'text-xs font-mono' },
+  { key: 'delivery_method', label: 'วิธีส่ง', className: 'text-xs' },
+  {
+    key: 'courier_name', label: 'ผู้จัดส่ง', className: 'text-sm',
+    render: (r: any) => r.courier_name || <span className="text-slate-300">—</span>
+  },
+  {
+    key: 'status', label: 'สถานะ',
+    render: r => { const c = STATUS_MAP[r.status as keyof typeof STATUS_MAP] ?? { label: r.status, variant: 'gray' as const }; return <Badge variant={c.variant}>{c.label}</Badge>; }
+  },
+  {
+    key: 'delivery_date', label: 'วันที่',
+    render: r => fmtDate(r.delivery_date)
+  },
+  {
+    key: 'total_cost', label: 'ยอดรวม',
     render: r => Number(r.total_cost) > 0
       ? <span className="text-sm font-medium text-slate-700">{Number(r.total_cost).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span>
       : <span className="text-slate-300">—</span>,
-    exportValue: r => Number(r.total_cost) > 0 ? `${Number(r.total_cost).toFixed(2)}` : '-' },
+    exportValue: r => Number(r.total_cost) > 0 ? `${Number(r.total_cost).toFixed(2)}` : '-'
+  },
 ];
 
 export default function DeliveryPage() {
-  const [form,      setForm]      = useState<typeof emptyForm>(emptyForm);
+  const [form, setForm] = useState<typeof emptyForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [saving,    setSaving]    = useState(false);
-  const [reload,    setReload]    = useState(0);
-  const [resetKey,  setResetKey]  = useState(0);
-  const [drawer,    setDrawer]    = useState<any | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [reload, setReload] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
+  const [drawer, setDrawer] = useState<any | null>(null);
   const [patientDrawerId, setPatientDrawerId] = useState<number | null>(null);
   const [drawerAllergies, setDrawerAllergies] = useState<any[]>([]);
   const [drawerAllergyLoading, setDrawerAllergyLoading] = useState(false);
 
   // drug search state
-  const [drugSearch, setDrugSearch]     = useState('');
-  const [drugResults, setDrugResults]   = useState<Drug[]>([]);
-  const [drugLoading, setDrugLoading]   = useState(false);
+  const [drugSearch, setDrugSearch] = useState('');
+  const [drugResults, setDrugResults] = useState<Drug[]>([]);
+  const [drugLoading, setDrugLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [patientAllergies, setPatientAllergies] = useState<number[]>([]); // med_id list
 
@@ -133,17 +143,17 @@ export default function DeliveryPage() {
       patient.village_number ? `หมู่ ${patient.village_number}` : '',
       patient.road ? `ถนน${patient.road}` : '',
       patient.sub_district ? `ต.${patient.sub_district}` : '',
-      patient.district    ? `อ.${patient.district}` : '',
-      patient.province    ? `จ.${patient.province}` : '',
+      patient.district ? `อ.${patient.district}` : '',
+      patient.province ? `จ.${patient.province}` : '',
       patient.postal_code ?? '',
     ].filter(Boolean).join(' ');
     setForm(p => ({
       ...p,
-      patient_id:    patient.patient_id ?? 0,
+      patient_id: patient.patient_id ?? 0,
       patient_label: patient.full_name ?? '',
-      receiver_name:  patient.full_name || '',
+      receiver_name: patient.full_name || '',
       receiver_phone: patient.phone || '',
-      address:        address,
+      address: address,
     }));
     loadAllergies(patient.patient_id);
   };
@@ -229,14 +239,14 @@ export default function DeliveryPage() {
   };
 
   const handleSave = async () => {
-    if (!form.patient_id)      { toast.error('กรุณาเลือกผู้ป่วย');     return; }
-    if (!form.delivery_method) { toast.error('กรุณาเลือกวิธีจัดส่ง');  return; }
-    if (!form.receiver_name)   { toast.error('กรุณากรอกชื่อผู้รับ');    return; }
-    if (!form.receiver_phone)  { toast.error('กรุณากรอกเบอร์โทร');      return; }
+    if (!form.patient_id) { toast.error('กรุณาเลือกผู้ป่วย'); return; }
+    if (!form.delivery_method) { toast.error('กรุณาเลือกวิธีจัดส่ง'); return; }
+    if (!form.receiver_name) { toast.error('กรุณากรอกชื่อผู้รับ'); return; }
+    if (!form.receiver_phone) { toast.error('กรุณากรอกเบอร์โทร'); return; }
     if (!/^0\d{8,9}$/.test(form.receiver_phone.replace(/[-\s]/g, ''))) {
       toast.error('เบอร์โทรไม่ถูกต้อง (ตัวอย่าง: 0812345678)'); return;
     }
-    if (!form.address)         { toast.error('กรุณากรอกที่อยู่');        return; }
+    if (!form.address) { toast.error('กรุณากรอกที่อยู่'); return; }
     if (!form.medicine_list || form.medicine_list.length === 0) { toast.error('กรุณาเพิ่มรายการยาอย่างน้อย 1 รายการ'); return; }
     setSaving(true);
     try {
@@ -253,7 +263,7 @@ export default function DeliveryPage() {
         })),
       };
       if (editingId) { await crudApi.updateDelivery(editingId, payload); toast.success('แก้ไขแล้ว'); }
-      else           { await crudApi.createDelivery(payload);            toast.success('สร้างรายการแล้ว'); }
+      else { await crudApi.createDelivery(payload); toast.success('สร้างรายการแล้ว'); }
       setShowModal(false); setReload(r => r + 1);
     } catch (e: any) { toast.error(e.message); }
     finally { setSaving(false); }
@@ -306,7 +316,7 @@ export default function DeliveryPage() {
           <Select label="วิธีจัดส่ง" required value={form.delivery_method}
             onChange={e => f('delivery_method', e.target.value)}
             placeholder="เลือกวิธี"
-            options={['ไปรษณีย์','Messenger','มารับด้วยตนเอง','จัดส่งถึงบ้าน'].map(m => ({ value: m, label: m }))} />
+            options={['ไปรษณีย์', 'Messenger', 'มารับด้วยตนเอง', 'จัดส่งถึงบ้าน'].map(m => ({ value: m, label: m }))} />
           {editingId && (
             <Select label="สถานะ" value={form.status} onChange={e => f('status', e.target.value)}
               options={Object.entries(STATUS_MAP).map(([v, { label }]) => ({ value: v, label }))} />
@@ -378,42 +388,42 @@ export default function DeliveryPage() {
               <p className="text-xs text-slate-400 text-center py-4 border border-dashed border-slate-200 rounded-lg">ยังไม่มีรายการยา</p>
             ) : (
               <>
-              <div className="space-y-2">
-                {form.medicine_list.map(item => (
-                  <div key={item.med_sid} className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg">
-                    <Pill size={14} className="text-primary-500 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 truncate">{item.med_showname || item.med_name}</p>
-                      <p className="text-xs text-slate-400">คงเหลือ {item.stock} {item.unit}</p>
+                <div className="space-y-2">
+                  {form.medicine_list.map(item => (
+                    <div key={item.med_sid} className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg">
+                      <Pill size={14} className="text-primary-500 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-800 truncate">{item.med_showname || item.med_name}</p>
+                        <p className="text-xs text-slate-400">คงเหลือ {item.stock} {item.unit}</p>
+                      </div>
+                      <input
+                        type="number" min={1} max={item.stock}
+                        value={item.quantity}
+                        onChange={e => changeQty(item.med_sid, parseInt(e.target.value) || 1)}
+                        className="w-16 text-center text-sm border border-slate-200 rounded-md py-1 focus:outline-none focus:ring-1 focus:ring-primary-300"
+                      />
+                      <span className="text-xs text-slate-400">{item.unit}</span>
+                      {item.unit_price > 0 && (
+                        <span className="text-xs text-slate-500 whitespace-nowrap">
+                          = {(item.unit_price * item.quantity).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
+                        </span>
+                      )}
+                      <button type="button" onClick={() => removeDrug(item.med_sid)}
+                        className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+                        <X size={14} />
+                      </button>
                     </div>
-                    <input
-                      type="number" min={1} max={item.stock}
-                      value={item.quantity}
-                      onChange={e => changeQty(item.med_sid, parseInt(e.target.value) || 1)}
-                      className="w-16 text-center text-sm border border-slate-200 rounded-md py-1 focus:outline-none focus:ring-1 focus:ring-primary-300"
-                    />
-                    <span className="text-xs text-slate-400">{item.unit}</span>
-                    {item.unit_price > 0 && (
-                      <span className="text-xs text-slate-500 whitespace-nowrap">
-                        = {(item.unit_price * item.quantity).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
-                      </span>
-                    )}
-                    <button type="button" onClick={() => removeDrug(item.med_sid)}
-                      className="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-              {form.medicine_list.some(m => m.unit_price > 0) && (
-                <div className="flex justify-end mt-2 px-1">
-                  <span className="text-xs text-slate-500 mr-2">ยอดรวม:</span>
-                  <span className="text-sm font-bold text-primary-700">
-                    {form.medicine_list.reduce((s, m) => s + m.unit_price * m.quantity, 0)
-                      .toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
-                  </span>
+                  ))}
                 </div>
-              )}
+                {form.medicine_list.some(m => m.unit_price > 0) && (
+                  <div className="flex justify-end mt-2 px-1">
+                    <span className="text-xs text-slate-500 mr-2">ยอดรวม:</span>
+                    <span className="text-sm font-bold text-primary-700">
+                      {form.medicine_list.reduce((s, m) => s + m.unit_price * m.quantity, 0)
+                        .toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
+                    </span>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -458,35 +468,19 @@ export default function DeliveryPage() {
                 </div>
               </button>
               <DrawerGrid items={[
-                { label: 'สถานะ',        value: statusBadge(drawer.status) },
-                { label: 'วิธีจัดส่ง',  value: drawer.delivery_method || '—' },
-                { label: 'วันที่',        value: fmtDate(drawer.delivery_date) },
-                { label: 'เวลาจัดส่งจริง',  value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
-                { label: 'ผู้รับ',          value: drawer.receiver_name || '—' },
+                { label: 'สถานะ', value: statusBadge(drawer.status) },
+                { label: 'วิธีจัดส่ง', value: drawer.delivery_method || '—' },
+                { label: 'วันที่', value: fmtDate(drawer.delivery_date) },
+                { label: 'เวลาจัดส่งจริง', value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
+                { label: 'ผู้รับ', value: drawer.receiver_name || '—' },
                 { label: 'เบอร์โทรผู้รับ', value: drawer.receiver_phone || '—' },
-                { label: 'ที่อยู่',         value: drawer.address || '—', span: true },
-                { label: 'ผู้จัดส่ง',       value: drawer.courier_name || '—' },
-                { label: 'เบอร์ผู้จัดส่ง',  value: drawer.courier_phone || '—' },
-                { label: 'เลขพัสดุ',        value: drawer.tracking_number || '—' },
-                { label: 'หมายเหตุ',         value: drawer.note || '—', span: true },
+                { label: 'ที่อยู่', value: drawer.address || '—', span: true },
+                { label: 'ผู้จัดส่ง', value: drawer.courier_name || '—' },
+                { label: 'เบอร์ผู้จัดส่ง', value: drawer.courier_phone || '—' },
+                { label: 'เลขพัสดุ', value: drawer.tracking_number || '—' },
+                { label: 'หมายเหตุ', value: drawer.note || '—', span: true },
               ]} />
             </DrawerSection>
-
-            {Array.isArray(drawer.medicine_list) && drawer.medicine_list.length > 0 && (
-              <DrawerSection title="รายการยา">
-                <div className="space-y-2">
-                  {drawer.medicine_list.map((item: any, i: number) => (
-                    <div key={i} className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg">
-                      <Pill size={14} className="text-primary-500 shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-slate-800">{item.med_name || item.med_showname}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-slate-700">{item.quantity}</span>
-                    </div>
-                  ))}
-                </div>
-              </DrawerSection>
-            )}
 
             <DrawerSection title="ประวัติแพ้ยา">
               {drawerAllergyLoading ? (
@@ -505,8 +499,8 @@ export default function DeliveryPage() {
                         {a.symptoms && <p className="text-xs text-slate-500 mt-0.5">{a.symptoms}</p>}
                       </div>
                       <Badge variant={
-                        a.severity === 'severe'   ? 'danger'  :
-                        a.severity === 'moderate' ? 'warning' : 'gray'
+                        a.severity === 'severe' ? 'danger' :
+                          a.severity === 'moderate' ? 'warning' : 'gray'
                       }>
                         {a.severity === 'severe' ? 'รุนแรงมาก' : a.severity === 'moderate' ? 'ปานกลาง' : 'เล็กน้อย'}
                       </Badge>
@@ -515,6 +509,22 @@ export default function DeliveryPage() {
                 </div>
               )}
             </DrawerSection>
+
+            {Array.isArray(drawer.medicine_list) && drawer.medicine_list.length > 0 && (
+              <DrawerSection title="รายการยา">
+                <div className="space-y-2">
+                  {drawer.medicine_list.map((item: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg">
+                      <Pill size={14} className="text-primary-500 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800">{item.med_name || item.med_showname}</p>
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">{item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              </DrawerSection>
+            )}
 
             <DrawerSection title="">
               <Button variant="secondary" onClick={() => { setDrawer(null); openEdit(drawer); }}>แก้ไข</Button>
