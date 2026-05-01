@@ -1406,13 +1406,18 @@ export default function DispensePage() {
                 </div>
               </button>
               <DrawerGrid items={[
-                { label: 'แพทย์', value: drawerFull.doctor_name || '—' },
-                { label: 'แผนก', value: drawerFull.ward ?? '—' },
                 { label: 'กรุ๊ปเลือด', value: drawerFull.blood_group ?? '—' },
                 { label: 'เพศ', value: drawerFull.gender === 'M' ? 'ชาย' : drawerFull.gender === 'F' ? 'หญิง' : '—' },
                 { label: 'เบอร์โทร', value: drawerFull.phone ?? '—' },
                 { label: 'เลขประจำตัว', value: drawerFull.national_id ?? '—' },
                 { label: 'สิทธิ์การรักษา', value: treatmentRightLabel(drawerFull.treatment_right, drawerFull.treatment_right_note) ?? '—' },
+              ]} />
+            </DrawerSection>
+
+            <DrawerSection title="รายละเอียดใบสั่งยา">
+              <DrawerGrid items={[
+                { label: 'แพทย์ผู้สั่งยา', value: drawerFull.doctor_name || '—' },
+                { label: 'แผนกที่สั่งยา', value: drawerFull.ward ?? '—' },
                 { label: 'วินิจฉัย', value: drawerFull.diagnosis ?? '—', span: true },
                 { label: 'PMH', value: drawerFull.PMH ?? '—', span: true },
                 { label: 'วันที่สร้าง', value: fmtDate(drawerFull.created_at, true) },
