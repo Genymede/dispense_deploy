@@ -10,7 +10,7 @@ import SearchSelect from '@/components/SearchSelect';
 import toast from 'react-hot-toast';
 import { fmtDate } from '@/lib/dateUtils';
 
-const DEFAULT_PACKAGING = ['เม็ด', 'แคปซูล', 'ซอง', 'กล่อง', 'ขวด', 'หลอด'];
+const DEFAULT_PACKAGING = ['เม็ด', 'แคปซูล', 'ซอง', 'กล่อง', 'ขวด', 'หลอด', 'มล.', 'กรัม', 'ชิ้น', 'ไวแอล', 'แอมพูล'];
 
 const emptyForm = {
   med_id: 0,
