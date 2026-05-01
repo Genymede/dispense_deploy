@@ -280,6 +280,9 @@ export const stockApi = {
     expiry_date?: string; mfg_date?: string;
     reference_no?: string; note?: string;
   }) => api.post<StockTransaction>('/stock/from-main', data),
+
+  getRequisitions: (params?: { status?: string; page?: number; limit?: number }) =>
+    api.get<{ data: any[]; total: number }>('/stock/requisitions', { params }),
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
