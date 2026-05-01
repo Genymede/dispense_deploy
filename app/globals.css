@@ -16,7 +16,7 @@
   --info: #0284c7;
   --info-light: #e0f2fe;
   --surface: #ffffff;
-  --bg: #f1f5f9;
+  --bg: #e4e7eb;
   --border: #e2e8f0;
   --text: #0f172a;
   --text-muted: #64748b;
@@ -43,45 +43,81 @@ body {
   width: 5px;
   height: 5px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
 /* Sidebar dark scrollbar */
 aside ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
+
 aside ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes pulse-ring {
-  0% { transform: scale(0.9); opacity: 1; }
-  100% { transform: scale(1.4); opacity: 0; }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-.animate-fade-in { animation: fadeIn 0.25s ease-out both; }
-.animate-slide-in { animation: slideIn 0.2s ease-out both; }
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out both;
+}
 
 /* Skeleton loader */
 .skeleton {
@@ -109,10 +145,15 @@ aside ::-webkit-scrollbar-thumb:hover {
 }
 
 /* Table */
-.table-row-hover:hover { background: #f8fafc; }
+.table-row-hover:hover {
+  background: #f8fafc;
+}
 
 /* Focus ring */
-input:focus, select:focus, textarea:focus, button:focus-visible {
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
@@ -125,11 +166,30 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
 }
 
 /* Status colors */
-.status-active { background: var(--success-light); color: var(--success); }
-.status-warning { background: var(--warning-light); color: var(--warning); }
-.status-danger { background: var(--danger-light); color: var(--danger); }
-.status-info { background: var(--info-light); color: var(--info); }
-.status-gray { background: #f1f5f9; color: #64748b; }
+.status-active {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.status-warning {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.status-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.status-info {
+  background: var(--info-light);
+  color: var(--info);
+}
+
+.status-gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
 
 /* Modal overlay */
 .modal-overlay {
@@ -138,7 +198,7 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
   right: 0;
   bottom: 0;
   left: var(--sidebar-w);
-  background: rgba(15,23,42,0.45);
+  background: rgba(15, 23, 42, 0.45);
   z-index: 50;
   display: flex;
   align-items: center;
@@ -150,7 +210,7 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
 .modal-box {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -159,6 +219,12 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
 
 /* Print */
 @media print {
-  .no-print { display: none !important; }
-  .card { box-shadow: none; border: 1px solid #ccc; }
+  .no-print {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
 }
