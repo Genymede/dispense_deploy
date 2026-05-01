@@ -1082,8 +1082,8 @@ export default function DispensePage() {
                   disabled={
                     dispenseItems.length === 0 ||
                     (dispenseItemsChanged
-                      ? Object.values(liveAlerts).flat().some((a: any) => a.type === 'allergy' || a.type === 'interaction')
-                      : (!safetyResult || filteredAlertLevel !== 'safe')) ||
+                      ? Object.values(liveAlerts).flat().some((a: any) => (a.type === 'allergy' || a.type === 'interaction') && a.level === 'critical')
+                      : (!safetyResult || filteredAlertLevel === 'critical')) ||
                     dispenseItems.some((it: any) => Number(it.stock_available) < Number(it.quantity) && !pendingOverdueIds.has(it.item_id) && it.item_id !== undefined)
                   }
                   variant={(dispenseItemsChanged ? Object.values(liveAlerts).flat().some((a: any) => a.level === 'critical') : filteredAlertLevel === 'critical') ? 'danger' : 'primary'}>
