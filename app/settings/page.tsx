@@ -1,46 +1,100 @@
 'use client';
 import { useEffect, useState } from 'react';
 import MainLayout from '@/components/MainLayout';
-import { Card, Input, Button } from '@/components/ui';
+import { Card, Input, Button, Badge } from '@/components/ui';
 import { api } from '@/lib/api';
-import { FlaskConical, Save, RefreshCw, X, Plus } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
+import { FlaskConical, Save, Bell, UserCircle, X, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const DEFAULT_UNITS = ['เม็ด', 'แคปซูล', 'ซอง', 'กล่อง', 'ขวด', 'หลอด', 'มล.', 'กรัม', 'ชิ้น', 'ไวแอล', 'แอมพูล'];
 
+const ALERT_TYPES = [
+  { key: 'alert_enabled_low_stock',   label: 'ยาสต็อกต่ำกว่าขั้นต่ำ',       severity: 'วิกฤต',   def: true  },
+  { key: 'alert_enabled_near_expiry', label: 'ยาใกล้หมดอายุ',                severity: 'เตือน',   def: true  },
+  { key: 'alert_enabled_expired',     label: 'ยาหมดอายุ',                     severity: 'วิกฤต',   def: true  },
+  { key: 'alert_enabled_overstock',   label: 'ยาเกินสต็อกสูงสุด',            severity: 'ข้อมูล', def: false },
+  { key: 'alert_enabled_new_drug',    label: 'ยาใหม่เข้าคลัง (7 วันล่าสุด)', severity: 'ข้อมูล', def: true  },
+];
+
+interface Profile {
+  firstname_th: string; lastname_th: string;
+  firstname_en: string; lastname_en: string;
+  email: string; role_name_th: string;
+}
+
 export default function SettingsPage() {
-  const [drugUnits,    setDrugUnits]    = useState<string[]>(DEFAULT_UNITS);
-  const [newUnit,      setNewUnit]      = useState('');
-  const [hospitalName, setHospitalName] = useState('');
-  const [deptName,     setDeptName]     = useState('');
-  const [saving,       setSaving]       = useState(false);
-  const [apiStatus,    setApiStatus]    = useState<'checking' | 'ok' | 'error'>('checking');
-  const [apiInfo,      setApiInfo]      = useState<any>(null);
+  const { user } = useAuth();
+
+  // profile
+  const [profile,       setProfile]      = useState<Profile>({ firstname_th: '', lastname_th: '', firstname_en: '', lastname_en: '', email: '', role_name_th: '' });
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // alerts
+  const [nearExpiryDays, setNearExpiryDays] = useState('30');
+  const [lowStockPct,    setLowStockPct]    = useState('100');
+  const [alertEnabled,   setAlertEnabled]   = useState<Record<string, boolean>>(
+    Object.fromEntries(ALERT_TYPES.map(t => [t.key, t.def]))
+  );
+
+  // units
+  const [drugUnits, setDrugUnits] = useState<string[]>(DEFAULT_UNITS);
+  const [newUnit,   setNewUnit]   = useState('');
+
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    checkApi();
+    api.get('/auth/me').then(res => {
+      const d = res.data;
+      setProfile({
+        firstname_th: d.firstname_th ?? '',
+        lastname_th:  d.lastname_th  ?? '',
+        firstname_en: d.firstname_en ?? '',
+        lastname_en:  d.lastname_en  ?? '',
+        email:        d.email        ?? user?.email ?? '',
+        role_name_th: d.role_name_th ?? user?.role_name ?? '',
+      });
+    }).catch(() => {});
+
     api.get('/settings').then(res => {
       const d = res.data;
-      if (d.hospital_name) setHospitalName(d.hospital_name);
-      if (d.dept_name)     setDeptName(d.dept_name);
-      if (d.drug_units)    { try { setDrugUnits(JSON.parse(d.drug_units)); } catch { } }
+      if (d.near_expiry_days) setNearExpiryDays(d.near_expiry_days);
+      if (d.low_stock_pct)    setLowStockPct(d.low_stock_pct);
+      if (d.drug_units)       { try { setDrugUnits(JSON.parse(d.drug_units)); } catch { } }
+      setAlertEnabled(prev => {
+        const next = { ...prev };
+        for (const t of ALERT_TYPES) {
+          if (d[t.key] !== undefined) next[t.key] = d[t.key] === 'true';
+        }
+        return next;
+      });
     }).catch(() => {});
   }, []);
 
-  const checkApi = async () => {
-    setApiStatus('checking');
-    try { const r = await api.get('/health'); setApiStatus('ok'); setApiInfo(r.data); }
-    catch { setApiStatus('error'); setApiInfo(null); }
+  const saveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      await api.put('/auth/me', {
+        firstname_th: profile.firstname_th,
+        lastname_th:  profile.lastname_th,
+        firstname_en: profile.firstname_en,
+        lastname_en:  profile.lastname_en,
+      });
+      toast.success('บันทึกโปรไฟล์เรียบร้อย');
+    } catch { toast.error('บันทึกไม่สำเร็จ'); }
+    finally { setSavingProfile(false); }
   };
 
   const save = async () => {
     setSaving(true);
     try {
-      await api.put('/settings', {
-        hospital_name: hospitalName,
-        dept_name:     deptName,
-        drug_units:    JSON.stringify(drugUnits),
-      });
+      const payload: Record<string, string> = {
+        near_expiry_days: nearExpiryDays,
+        low_stock_pct:    lowStockPct,
+        drug_units:       JSON.stringify(drugUnits),
+      };
+      for (const t of ALERT_TYPES) payload[t.key] = String(alertEnabled[t.key]);
+      await api.put('/settings', payload);
       toast.success('บันทึกเรียบร้อย');
     } catch { toast.error('บันทึกไม่สำเร็จ'); }
     finally { setSaving(false); }
@@ -48,9 +102,11 @@ export default function SettingsPage() {
 
   const addUnit = () => {
     const v = newUnit.trim();
-    if (v && !drugUnits.includes(v)) { setDrugUnits(p => [...p, v]); }
+    if (v && !drugUnits.includes(v)) setDrugUnits(p => [...p, v]);
     setNewUnit('');
   };
+
+  const fp = (k: keyof Profile, v: string) => setProfile(p => ({ ...p, [k]: v }));
 
   return (
     <MainLayout title="ตั้งค่าระบบ" subtitle="Settings"
@@ -58,16 +114,52 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl space-y-5">
 
-        {/* ── ข้อมูลระบบ ── */}
+        {/* ── โปรไฟล์ ── */}
         <Card>
-          <h3 className="text-sm font-semibold text-slate-700 mb-4">ข้อมูลระบบ</h3>
-          <div className="space-y-3">
-            <Input label="ชื่อโรงพยาบาล" value={hospitalName}
-              onChange={e => setHospitalName(e.target.value)}
-              placeholder="โรงพยาบาลวัดห้วยปลากั้ง" />
-            <Input label="ชื่อแผนก / คลังยา" value={deptName}
-              onChange={e => setDeptName(e.target.value)}
-              placeholder="แผนกเภสัชกรรม — คลังยาย่อย" />
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <UserCircle size={15} />โปรไฟล์ผู้ใช้
+            </h3>
+            <Button size="sm" variant="secondary" icon={<Save size={13} />}
+              onClick={saveProfile} loading={savingProfile}>
+              บันทึกโปรไฟล์
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="ชื่อ (ภาษาไทย)"      value={profile.firstname_th} onChange={e => fp('firstname_th', e.target.value)} />
+            <Input label="นามสกุล (ภาษาไทย)"   value={profile.lastname_th}  onChange={e => fp('lastname_th',  e.target.value)} />
+            <Input label="ชื่อ (ภาษาอังกฤษ)"   value={profile.firstname_en} onChange={e => fp('firstname_en', e.target.value)} />
+            <Input label="นามสกุล (ภาษาอังกฤษ)" value={profile.lastname_en}  onChange={e => fp('lastname_en',  e.target.value)} />
+            <Input label="อีเมล"  value={profile.email}        disabled />
+            <Input label="บทบาท" value={profile.role_name_th} disabled />
+          </div>
+        </Card>
+
+        {/* ── การแจ้งเตือน ── */}
+        <Card>
+          <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <Bell size={15} />การแจ้งเตือน
+          </h3>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <Input label="แจ้งเตือนก่อนยาหมดอายุ" type="number" suffix="วัน"
+              value={nearExpiryDays} onChange={e => setNearExpiryDays(e.target.value)} />
+            <Input label="แจ้งเตือนสต็อกต่ำกว่า" type="number" suffix="%"
+              value={lowStockPct} onChange={e => setLowStockPct(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            {ALERT_TYPES.map(({ key, label, severity }) => (
+              <label key={key} className="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <input type="checkbox" checked={alertEnabled[key]}
+                    onChange={e => setAlertEnabled(p => ({ ...p, [key]: e.target.checked }))}
+                    className="w-4 h-4 text-primary-600 rounded" />
+                  <span className="text-sm text-slate-700">{label}</span>
+                </div>
+                <Badge variant={severity === 'วิกฤต' ? 'danger' : severity === 'เตือน' ? 'warning' : 'info'}>
+                  {severity}
+                </Badge>
+              </label>
+            ))}
           </div>
         </Card>
 
@@ -77,7 +169,6 @@ export default function SettingsPage() {
             <FlaskConical size={15} />หน่วยยา / รูปแบบบรรจุ
           </h3>
           <p className="text-xs text-slate-400 mb-4">ใช้เป็น dropdown ในหน้าเพิ่มยาและทะเบียนยาหลัก</p>
-
           <div className="flex flex-wrap gap-2 mb-4">
             {drugUnits.map((u, i) => (
               <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-700">
@@ -89,7 +180,6 @@ export default function SettingsPage() {
               </span>
             ))}
           </div>
-
           <div className="flex gap-2">
             <input type="text" value={newUnit}
               onChange={e => setNewUnit(e.target.value)}
@@ -102,32 +192,6 @@ export default function SettingsPage() {
               <Plus size={14} />เพิ่ม
             </button>
           </div>
-        </Card>
-
-        {/* ── สถานะ API ── */}
-        <Card>
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">สถานะ API Backend</h3>
-          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-              apiStatus === 'ok'       ? 'bg-green-500' :
-              apiStatus === 'error'    ? 'bg-red-500'   :
-              'bg-amber-400 animate-pulse'
-            }`} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-700">
-                {apiStatus === 'ok' ? 'เชื่อมต่อสำเร็จ' : apiStatus === 'error' ? 'เชื่อมต่อไม่ได้' : 'กำลังตรวจสอบ...'}
-              </p>
-              {apiInfo && (
-                <p className="text-xs text-slate-400 font-mono mt-0.5 truncate">{JSON.stringify(apiInfo)}</p>
-              )}
-            </div>
-            <Button variant="secondary" size="sm" icon={<RefreshCw size={13} />} onClick={checkApi}>
-              ตรวจสอบ
-            </Button>
-          </div>
-          <p className="text-xs text-slate-400 font-mono mt-2 px-1">
-            {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}
-          </p>
         </Card>
 
       </div>
