@@ -14,17 +14,15 @@ import { thaiToday, fmtDate } from '@/lib/dateUtils';
 
 // ─── Requisition status config ────────────────────────────────────────────────
 const REQ_STATUS: Record<string, { label: string; badge: 'warning' | 'info' | 'success' | 'danger' | 'gray' }> = {
-  DRAFT:     { label: 'ร่าง',           badge: 'gray' },
-  PENDING:   { label: 'รออนุมัติ',      badge: 'warning' },
-  APPROVED:  { label: 'อนุมัติแล้ว',    badge: 'info' },
-  ISSUED:    { label: 'จ่ายแล้ว',        badge: 'success' },
-  REJECTED:  { label: 'ปฏิเสธ',         badge: 'danger' },
-  CANCELLED: { label: 'ยกเลิก',         badge: 'gray' },
+  PENDING: { label: 'รออนุมัติ', badge: 'warning' },
+  APPROVED: { label: 'อนุมัติแล้ว', badge: 'info' },
+  REJECTED: { label: 'ปฏิเสธ', badge: 'danger' },
+  CANCELLED: { label: 'ยกเลิก', badge: 'gray' },
 };
 
 const PAGE_TABS = [
   { key: 'requisitions', label: 'คำขอเบิกจากคลังหลัก', icon: <ClipboardList size={14} /> },
-  { key: 'history',      label: 'ประวัติรับยาเข้าคลัง', icon: <ArrowDownToLine size={14} /> },
+  { key: 'history', label: 'ประวัติรับยาเข้าคลัง', icon: <ArrowDownToLine size={14} /> },
 ] as const;
 type PageTab = typeof PAGE_TABS[number]['key'];
 
@@ -101,11 +99,11 @@ export default function StockInPage() {
   const { user } = useAuth();
 
   // ── Requisitions ────────────────────────────────────────────────────────────
-  const [reqs,         setReqs]         = useState<any[]>([]);
-  const [reqTotal,     setReqTotal]     = useState(0);
-  const [reqLoading,   setReqLoading]   = useState(false);
-  const [reqPage,      setReqPage]      = useState(1);
-  const [reqStatus,    setReqStatus]    = useState('all');
+  const [reqs, setReqs] = useState<any[]>([]);
+  const [reqTotal, setReqTotal] = useState(0);
+  const [reqLoading, setReqLoading] = useState(false);
+  const [reqPage, setReqPage] = useState(1);
+  const [reqStatus, setReqStatus] = useState('all');
   const reqPerPage = 30;
 
   const loadReqs = useCallback(async () => {
@@ -126,16 +124,16 @@ export default function StockInPage() {
   useEffect(() => { if (tab === 'requisitions') loadReqs(); }, [tab, loadReqs]);
 
   // ── History (existing stock-in transactions) ────────────────────────────────
-  const [history,       setHistory]       = useState<StockTransaction[]>([]);
-  const [total,         setTotal]         = useState(0);
-  const [loading,       setLoading]       = useState(false);
-  const [searchTx,      setSearchTx]      = useState('');
-  const [histPage,      setHistPage]      = useState(1);
+  const [history, setHistory] = useState<StockTransaction[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [searchTx, setSearchTx] = useState('');
+  const [histPage, setHistPage] = useState(1);
   const perPage = 30;
 
-  const [pending,        setPending]        = useState<StockTransaction[]>([]);
+  const [pending, setPending] = useState<StockTransaction[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
-  const [approving,      setApproving]      = useState<number | null>(null);
+  const [approving, setApproving] = useState<number | null>(null);
 
   const loadHistory = useCallback(async () => {
     setLoading(true);
@@ -182,11 +180,11 @@ export default function StockInPage() {
   const todayTxs = history.filter(h => h.created_at.startsWith(thaiToday()));
   const filteredHistory = searchTx
     ? history.filter(h =>
-        (h.med_showname || h.med_name).includes(searchTx) ||
-        (h.reference_no || '').includes(searchTx))
+      (h.med_showname || h.med_name).includes(searchTx) ||
+      (h.reference_no || '').includes(searchTx))
     : history;
 
-  const reqTotalPages  = Math.ceil(reqTotal / reqPerPage);
+  const reqTotalPages = Math.ceil(reqTotal / reqPerPage);
   const histTotalPages = Math.ceil(total / perPage);
 
   return (
@@ -203,9 +201,8 @@ export default function StockInPage() {
       <div className="flex gap-1 bg-slate-200 p-1 rounded-xl mb-5 w-fit">
         {PAGE_TABS.map(({ key, label, icon }) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === key ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            }`}>
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === key ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}>
             {icon}{label}
           </button>
         ))}
@@ -221,11 +218,10 @@ export default function StockInPage() {
                 {(['all', 'DRAFT', 'PENDING', 'APPROVED', 'ISSUED', 'REJECTED', 'CANCELLED'] as const).map(s => (
                   <button key={s}
                     onClick={() => { setReqStatus(s); setReqPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      reqStatus === s
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${reqStatus === s
                         ? 'bg-primary-600 text-white'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}>
+                      }`}>
                     {s === 'all' ? 'ทั้งหมด' : (REQ_STATUS[s]?.label ?? s)}
                   </button>
                 ))}
