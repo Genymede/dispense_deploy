@@ -1194,132 +1194,108 @@ export default function DispensePage() {
               </div>
             </div>
           }>
-          <div className="grid grid-cols-[340px_1fr] gap-0 -m-5">
+          <div className="space-y-5">
 
-            {/* ══ ซ้าย: ข้อมูลผู้ป่วย ══════════════════════════════════════ */}
-            <div className="sticky top-0 self-start bg-slate-50 border-r border-slate-200 p-5 space-y-4 min-h-full">
+            {/* ══ 1. Patient card ═══════════════════════════════════════════ */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden">
 
-              {/* identity card */}
-              <div className="flex items-center gap-3">
+              {/* identity row */}
+              <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 border-b border-slate-100">
                 {dispenseRx.patient_photo ? (
                   <img src={`/images/patient_image/${dispenseRx.patient_photo}`} alt={dispenseRx.patient_name || 'ผู้ป่วย'}
-                    className="w-14 h-14 rounded-full object-cover border-2 border-white shadow flex-shrink-0" />
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow flex-shrink-0" />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 border-2 border-white shadow">
-                    <span className="text-primary-600 font-bold text-xl">{(dispenseRx.patient_name || '?')[0]}</span>
+                  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 border-2 border-white shadow">
+                    <span className="text-primary-600 font-bold text-lg">{(dispenseRx.patient_name || '?')[0]}</span>
                   </div>
                 )}
-                <div className="min-w-0">
-                  <p className="font-semibold text-slate-800 text-base truncate">{dispenseRx.patient_name || 'ไม่ระบุ'}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">HN: <span className="font-mono">{dispenseRx.hn_number || '—'}</span></p>
-                  <p className="text-xs text-slate-400">RX: <span className="font-mono text-primary-600">{dispenseRx.prescription_no}</span></p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-slate-800 truncate">{dispenseRx.patient_name || 'ไม่ระบุ'}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">HN: <span className="font-mono">{dispenseRx.hn_number || '—'}</span> · RX: <span className="font-mono text-primary-600">{dispenseRx.prescription_no}</span></p>
                 </div>
               </div>
 
-              {/* demographics */}
+              {/* allergy banner */}
+              {dispenseAllergies.length > 0 ? (
+                <div className="px-4 py-2.5 bg-red-500 text-white flex items-start gap-2">
+                  <AlertTriangle size={15} className="shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-sm font-bold">แพ้ยา: </span>
+                    <span className="text-sm">{dispenseAllergies.map((a: any) => a.med_name || '').filter(Boolean).join(' · ')}</span>
+                    {dispenseAllergies.some((a: any) => a.symptoms) && (
+                      <p className="text-xs mt-0.5 text-red-100">
+                        อาการ: {dispenseAllergies.map((a: any) => a.symptoms).filter(Boolean).join('; ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 py-2 bg-green-50 flex items-center gap-2">
+                  <CheckCircle2 size={13} className="text-green-500" />
+                  <span className="text-xs text-green-700 font-medium">ไม่มีประวัติแพ้ยา</span>
+                </div>
+              )}
+
+              {/* demographics + vitals */}
               {dispensePatientDetail && (
-                <div className="rounded-lg border border-slate-200 bg-white overflow-hidden text-xs">
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 px-3 py-2.5">
+                <div className="px-4 py-3 space-y-3">
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-1.5 text-xs">
                     <div><span className="text-slate-400">เพศ: </span><span className="font-medium">{dispensePatientDetail.gender === 'M' ? 'ชาย' : dispensePatientDetail.gender === 'F' ? 'หญิง' : '—'}</span></div>
                     <div><span className="text-slate-400">อายุ: </span><span className="font-medium">{dispensePatientDetail.age_y ?? '—'} ปี {dispensePatientDetail.age_m ?? ''} เดือน</span></div>
                     <div><span className="text-slate-400">หมู่เลือด: </span><span className="font-bold text-red-700">{dispensePatientDetail.blood_group?.trim() || '—'}</span></div>
                     <div><span className="text-slate-400">โทร: </span><span>{dispensePatientDetail.phone || '—'}</span></div>
                     <div className="col-span-2"><span className="text-slate-400">บัตรปชช.: </span><span className="font-mono">{dispensePatientDetail.national_id || '—'}</span></div>
+                    <div className="col-span-2"><span className="text-slate-400">สิทธิ์: </span><span className="font-medium">{treatmentRightLabel((dispenseRx as any).treatment_right, (dispenseRx as any).treatment_right_note) ?? '—'}</span></div>
                     {dispensePatientDetail.PMH && (
-                      <div className="col-span-2 pt-1 border-t border-slate-100">
-                        <span className="text-slate-400">โรคประจำตัว: </span>
-                        <span className="text-slate-700">{dispensePatientDetail.PMH}</span>
-                      </div>
+                      <div className="col-span-4"><span className="text-slate-400">โรคประจำตัว: </span><span className="text-slate-700">{dispensePatientDetail.PMH}</span></div>
                     )}
                   </div>
                   {(dispensePatientDetail.weight || dispensePatientDetail.height || dispensePatientDetail.bmi) && (
-                    <div className="grid grid-cols-3 gap-0 border-t border-slate-100 divide-x divide-slate-100 text-center">
-                      <div className="py-1.5"><p className="text-[10px] text-slate-400">น้ำหนัก</p><p className="font-semibold">{dispensePatientDetail.weight ?? '—'} <span className="text-slate-400 font-normal">kg</span></p></div>
-                      <div className="py-1.5"><p className="text-[10px] text-slate-400">ส่วนสูง</p><p className="font-semibold">{dispensePatientDetail.height ?? '—'} <span className="text-slate-400 font-normal">cm</span></p></div>
-                      <div className="py-1.5"><p className="text-[10px] text-slate-400">BMI</p><p className="font-semibold">{dispensePatientDetail.bmi ? Number(dispensePatientDetail.bmi).toFixed(1) : '—'}</p></div>
+                    <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 text-center text-xs">
+                      <div className="py-1.5"><p className="text-slate-400">น้ำหนัก</p><p className="font-semibold">{dispensePatientDetail.weight ?? '—'} <span className="text-slate-400 font-normal">kg</span></p></div>
+                      <div className="py-1.5"><p className="text-slate-400">ส่วนสูง</p><p className="font-semibold">{dispensePatientDetail.height ?? '—'} <span className="text-slate-400 font-normal">cm</span></p></div>
+                      <div className="py-1.5"><p className="text-slate-400">BMI</p><p className="font-semibold">{dispensePatientDetail.bmi ? Number(dispensePatientDetail.bmi).toFixed(1) : '—'}</p></div>
                     </div>
                   )}
                 </div>
               )}
+            </div>
 
-              {/* allergies */}
-              {dispenseAllergies.length > 0 ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 overflow-hidden">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-red-500 px-3 pt-2.5 pb-1">
-                    ⚠ ยาที่แพ้ ({dispenseAllergies.length})
-                  </p>
-                  <div className="divide-y divide-red-100">
-                    {dispenseAllergies.map((a: any) => (
-                      <div key={a.allr_id} className="px-3 py-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-xs font-semibold text-red-800 leading-snug">{a.med_name}</p>
-                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${a.severity === 'severe' ? 'bg-red-200 text-red-800' :
-                            a.severity === 'moderate' ? 'bg-orange-100 text-orange-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                            {a.severity === 'severe' ? 'รุนแรง' : a.severity === 'moderate' ? 'ปานกลาง' : 'เล็กน้อย'}
-                          </span>
-                        </div>
-                        {a.symptoms && <p className="text-[11px] text-red-600 mt-0.5">{a.symptoms}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-green-200 bg-green-50">
-                  <span className="text-green-500 text-sm">✓</span>
-                  <span className="text-xs text-green-700 font-medium">ไม่มียาที่แพ้</span>
-                </div>
-              )}
-
-              {/* treatment right */}
-              {(dispenseRx as any).treatment_right && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-100">
-                  <span className="text-[11px] text-blue-400 shrink-0">สิทธิ์</span>
-                  <span className="text-xs font-medium text-blue-800">
-                    {treatmentRightLabel((dispenseRx as any).treatment_right, (dispenseRx as any).treatment_right_note)}
-                  </span>
-                </div>
-              )}
-
-              <div className="border-t border-slate-200 pt-4 space-y-3">
-                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">ข้อมูลใบสั่งยา</p>
-
+            {/* ══ 2. Prescription meta ══════════════════════════════════════ */}
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">ข้อมูลใบสั่งยา</p>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500 block mb-1">แพทย์ผู้สั่ง</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">แพทย์ผู้สั่ง</label>
                   <SearchSelect type="user" label="" resetKey={dispenseMetaResetKey}
                     initialDisplay={dispenseDoctorLabel}
                     onSelect={u => { setDispenseDoctorId(u?.uid ?? null); setDispenseDoctorLabel(u?.full_name ?? ''); setDispenseMetaChanged(true); }} />
                 </div>
-
                 <div>
-                  <label className="text-xs font-medium text-slate-500 block mb-1">
-                    แผนก <span className="text-red-400">*</span>
-                  </label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">แผนก <span className="text-red-400">*</span></label>
                   <input value={dispenseWard} onChange={e => { setDispenseWard(e.target.value); setDispenseMetaChanged(true); }}
                     placeholder="OPD, IPD, ER, ICU..."
-                    className="w-full h-9 border border-slate-200 rounded-lg text-sm px-3 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-white" />
+                    className="w-full h-9 border border-slate-200 rounded-lg text-sm px-3 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100" />
                 </div>
-
                 <div>
-                  <label className="text-xs font-medium text-slate-500 block mb-1">คำวินิจฉัย</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">คำวินิจฉัย</label>
                   <input value={dispenseDiagnosis} onChange={e => { setDispenseDiagnosis(e.target.value); setDispenseMetaChanged(true); }}
                     placeholder="เช่น J06.9, HT, DM Type 2..."
-                    className="w-full h-9 border border-slate-200 rounded-lg text-sm px-3 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-white" />
+                    className="w-full h-9 border border-slate-200 rounded-lg text-sm px-3 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100" />
                 </div>
-
                 <div>
-                  <label className="text-xs font-medium text-slate-500 block mb-1">หมายเหตุจากแพทย์</label>
+                  <label className="text-xs font-medium text-slate-600 block mb-1.5">หมายเหตุจากแพทย์</label>
                   <textarea value={dispenseNote} onChange={e => { setDispenseNote(e.target.value); setDispenseMetaChanged(true); }}
-                    rows={4} placeholder="เช่น กำลังตั้งครรภ์, แพ้ยาที่ยังไม่ยืนยัน..."
-                    className="w-full border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 bg-white resize-none" />
+                    rows={2} placeholder="เช่น กำลังตั้งครรภ์, แพ้ยาที่ยังไม่ยืนยัน..."
+                    className="w-full border border-slate-200 rounded-lg text-sm px-3 py-2 outline-none focus:border-primary-500 resize-none" />
                 </div>
               </div>
-
             </div>
 
-            {/* ══ ขวา: ยา + แจ้งเตือน ══════════════════════════════════════ */}
-            <div className="p-5 space-y-3">
+            <div className="border-t border-slate-100" />
+
+            {/* ══ 3. Add drug + safety + table ═════════════════════════════ */}
+            <div className="space-y-3">
 
               {/* safety panel */}
               <SafetyPanel
