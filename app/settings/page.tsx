@@ -119,9 +119,13 @@ export default function SettingsPage() {
 
   return (
     <MainLayout title="ตั้งค่าระบบ" subtitle="Settings"
-      actions={tab !== 'profile'
-        ? <Button icon={<Save size={14} />} onClick={save} loading={saving}>บันทึก</Button>
-        : undefined}>
+      actions={
+        <Button icon={<Save size={14} />}
+          onClick={tab === 'profile' ? saveProfile : save}
+          loading={tab === 'profile' ? savingProfile : saving}>
+          บันทึก
+        </Button>
+      }>
 
       <div className="flex gap-6">
 
@@ -143,15 +147,9 @@ export default function SettingsPage() {
           {/* ── โปรไฟล์ ── */}
           {tab === 'profile' && (
             <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                  <UserCircle size={15} />ข้อมูลของฉัน
-                </h3>
-                <Button size="sm" variant="secondary" icon={<Save size={13} />}
-                  onClick={saveProfile} loading={savingProfile}>
-                  บันทึก
-                </Button>
-              </div>
+              <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+                <UserCircle size={15} />ข้อมูลของฉัน
+              </h3>
               <div className="grid grid-cols-2 gap-3">
                 <Input label="ชื่อ (ภาษาไทย)"      value={profile.firstname_th} onChange={e => fp('firstname_th', e.target.value)} />
                 <Input label="นามสกุล (ภาษาไทย)"   value={profile.lastname_th}  onChange={e => fp('lastname_th',  e.target.value)} />
