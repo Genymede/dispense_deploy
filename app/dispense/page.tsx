@@ -186,7 +186,8 @@ export default function DispensePage() {
 
   // dispense modal (confirm + full safety)
   const [dispenseRx, setDispenseRx] = useState<any | null>(null);
-  const [dispenseAllergies, setDispenseAllergies] = useState<any[]>([]);
+  const [dispenseAllergies,      setDispenseAllergies]      = useState<any[]>([]);
+  const [dispensePatientDetail,  setDispensePatientDetail]  = useState<any | null>(null);
   const [safetyResult, setSafetyResult] = useState<SafetyCheckResult | null>(null);
   const [dispensing, setDispensing] = useState(false);
   const [dispenseItems, setDispenseItems] = useState<any[]>([]);
@@ -355,8 +356,8 @@ export default function DispensePage() {
     setDispenseNote(rx.note || '');
     setDispenseDiagnosis(rx.diagnosis || '');
     setDispenseMetaChanged(false); setDispenseMetaResetKey(k => k + 1);
-    setDispenseAllergies([]);
-    // โหลด safety + items + allergies พร้อมกัน
+    setDispenseAllergies([]); setDispensePatientDetail(null);
+    // โหลด safety + items + allergies + patient detail พร้อมกัน
     Promise.all([
       safetyApi.check(rx.prescription_id)
         .then(r => setSafetyResult(r.data))
@@ -371,6 +372,11 @@ export default function DispensePage() {
       rx.patient_id
         ? registryApi.getAllergy({ patient_id: rx.patient_id, limit: 50 })
           .then(r => setDispenseAllergies(r.data.data ?? []))
+          .catch(() => { })
+        : Promise.resolve(),
+      rx.patient_id
+        ? patientApi.getById(rx.patient_id)
+          .then(r => setDispensePatientDetail(r.data))
           .catch(() => { })
         : Promise.resolve(),
     ]);
@@ -1157,7 +1163,7 @@ export default function DispensePage() {
           DISPENSE CONFIRM MODAL (พร้อม full safety check)
       ════════════════════════════════════════════════════════════════════ */}
       {dispenseRx && (
-        <Modal open onClose={() => { setDispenseRx(null); setSafetyResult(null); setDispenseItems([]); setPrintSelected(new Set()); setPendingOverdueIds(new Set()); setDispenseItemsChanged(false); setDispenseMetaChanged(false); setLiveAlerts({}); }} size="2xl"
+        <Modal open onClose={() => { setDispenseRx(null); setSafetyResult(null); setDispenseItems([]); setPrintSelected(new Set()); setPendingOverdueIds(new Set()); setDispenseItemsChanged(false); setDispenseMetaChanged(false); setLiveAlerts({}); setDispensePatientDetail(null); }} size="2xl"
           title={`จ่ายยา — ${dispenseRx.prescription_no}${(dispenseItemsChanged || dispenseMetaChanged) ? ' ✏️' : ''}`}
           footer={
             <div className="flex items-center justify-between w-full">
@@ -1172,7 +1178,7 @@ export default function DispensePage() {
                 พิมพ์รายการยา
               </Button>
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={() => { setDispenseRx(null); setSafetyResult(null); setDispenseItems([]); setPrintSelected(new Set()); setPendingOverdueIds(new Set()); setDispenseItemsChanged(false); setDispenseMetaChanged(false); setLiveAlerts({}); }}>ยกเลิก</Button>
+                <Button variant="secondary" onClick={() => { setDispenseRx(null); setSafetyResult(null); setDispenseItems([]); setPrintSelected(new Set()); setPendingOverdueIds(new Set()); setDispenseItemsChanged(false); setDispenseMetaChanged(false); setLiveAlerts({}); setDispensePatientDetail(null); }}>ยกเลิก</Button>
                 <Button
                   onClick={handleDispense} loading={dispensing}
                   disabled={
@@ -1209,6 +1215,32 @@ export default function DispensePage() {
                   <p className="text-xs text-slate-400">RX: <span className="font-mono text-primary-600">{dispenseRx.prescription_no}</span></p>
                 </div>
               </div>
+
+              {/* demographics */}
+              {dispensePatientDetail && (
+                <div className="rounded-lg border border-slate-200 bg-white overflow-hidden text-xs">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 px-3 py-2.5">
+                    <div><span className="text-slate-400">เพศ: </span><span className="font-medium">{dispensePatientDetail.gender === 'M' ? 'ชาย' : dispensePatientDetail.gender === 'F' ? 'หญิง' : '—'}</span></div>
+                    <div><span className="text-slate-400">อายุ: </span><span className="font-medium">{dispensePatientDetail.age_y ?? '—'} ปี {dispensePatientDetail.age_m ?? ''} เดือน</span></div>
+                    <div><span className="text-slate-400">หมู่เลือด: </span><span className="font-bold text-red-700">{dispensePatientDetail.blood_group?.trim() || '—'}</span></div>
+                    <div><span className="text-slate-400">โทร: </span><span>{dispensePatientDetail.phone || '—'}</span></div>
+                    <div className="col-span-2"><span className="text-slate-400">บัตรปชช.: </span><span className="font-mono">{dispensePatientDetail.national_id || '—'}</span></div>
+                    {dispensePatientDetail.PMH && (
+                      <div className="col-span-2 pt-1 border-t border-slate-100">
+                        <span className="text-slate-400">โรคประจำตัว: </span>
+                        <span className="text-slate-700">{dispensePatientDetail.PMH}</span>
+                      </div>
+                    )}
+                  </div>
+                  {(dispensePatientDetail.weight || dispensePatientDetail.height || dispensePatientDetail.bmi) && (
+                    <div className="grid grid-cols-3 gap-0 border-t border-slate-100 divide-x divide-slate-100 text-center">
+                      <div className="py-1.5"><p className="text-[10px] text-slate-400">น้ำหนัก</p><p className="font-semibold">{dispensePatientDetail.weight ?? '—'} <span className="text-slate-400 font-normal">kg</span></p></div>
+                      <div className="py-1.5"><p className="text-[10px] text-slate-400">ส่วนสูง</p><p className="font-semibold">{dispensePatientDetail.height ?? '—'} <span className="text-slate-400 font-normal">cm</span></p></div>
+                      <div className="py-1.5"><p className="text-[10px] text-slate-400">BMI</p><p className="font-semibold">{dispensePatientDetail.bmi ? Number(dispensePatientDetail.bmi).toFixed(1) : '—'}</p></div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* allergies */}
               {dispenseAllergies.length > 0 ? (
