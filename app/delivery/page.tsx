@@ -468,16 +468,16 @@ export default function DeliveryPage() {
                 </div>
               </button>
               <DrawerGrid items={[
-                { label: 'สถานะ', value: statusBadge(drawer.status) },
-                { label: 'วิธีจัดส่ง', value: drawer.delivery_method || '—' },
-                { label: 'วันที่', value: fmtDate(drawer.delivery_date) },
-                { label: 'เวลาจัดส่งจริง', value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
+                { label: 'เลขพัสดุ', value: drawer.tracking_number || '—' },
                 { label: 'ผู้รับ', value: drawer.receiver_name || '—' },
-                { label: 'เบอร์โทรผู้รับ', value: drawer.receiver_phone || '—' },
                 { label: 'ที่อยู่', value: drawer.address || '—', span: true },
+                { label: 'วิธีจัดส่ง', value: drawer.delivery_method || '—' },
+                { label: 'เบอร์โทรผู้รับ', value: drawer.receiver_phone || '—' },
                 { label: 'ผู้จัดส่ง', value: drawer.courier_name || '—' },
                 { label: 'เบอร์ผู้จัดส่ง', value: drawer.courier_phone || '—' },
-                { label: 'เลขพัสดุ', value: drawer.tracking_number || '—' },
+                { label: 'วันที่', value: fmtDate(drawer.delivery_date) },
+                { label: 'เวลาจัดส่งจริง', value: drawer.delivered_at ? fmtDate(drawer.delivered_at, true) : '—' },
+                { label: 'สถานะ', value: statusBadge(drawer.status) },
                 { label: 'หมายเหตุ', value: drawer.note || '—', span: true },
               ]} />
             </DrawerSection>
