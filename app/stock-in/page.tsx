@@ -230,7 +230,7 @@ export default function StockInPage() {
 
         {/* Pending Approvals + Requisitions */}
         <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-slate-100">
+          <div className="flex items-center justify-between mb-2 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-700">คำขอรออนุมัติ</h2>
               {(pending.length + reqs.length) > 0 && (
@@ -329,7 +329,7 @@ export default function StockInPage() {
         {/* History Table (เดิม) */}
         <Card className="overflow-hidden p-0">
           {/* ... (ส่วนประวัติการรับยาเดิมทั้งหมด ไว้เหมือนเดิม) ... */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-100">
+          <div className="flex items-center justify-between mb-2 border-b border-slate-100">
             <h2 className="text-sm font-semibold text-slate-700">ประวัติการรับยา</h2>
             <div className="w-64">
               <Input placeholder="ค้นหา..." value={searchTx} onChange={e => setSearchTx(e.target.value)} icon={<Search size={13} />} />
