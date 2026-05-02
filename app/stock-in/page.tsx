@@ -41,7 +41,7 @@ function RequisitionRow({ req }: { req: any }) {
         </td>
         <td className="px-4 py-3 font-mono text-xs font-semibold text-primary-700">{req.doc_no}</td>
         <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(req.request_date || req.created_at, true)}</td>
-        <td className="px-4 py-3 text-xs text-slate-600">{req.type || '—'}</td>
+        <td className="px-4 py-3 text-xs text-slate-600">{req.approver_name || '—'}</td>
         <td className="px-4 py-3">
           <Badge variant={cfg.badge}>{cfg.label}</Badge>
         </td>
@@ -257,7 +257,7 @@ export default function StockInPage() {
                     <thead className="bg-slate-50 border-b border-slate-100">
                       <tr>
                         <th className="w-5" />
-                        {['เลขที่เอกสาร', 'วันที่ขอ', 'ประเภท', 'สถานะ', 'รายการ', 'ผู้ขอ', 'หมายเหตุ', 'กำหนดรับ'].map(h => (
+                        {['เลขที่เอกสาร', 'วันที่ขอ', 'ผู้อนุมัติ', 'สถานะ', 'รายการ', 'ผู้ขอ', 'หมายเหตุ', 'กำหนดรับ'].map(h => (
                           <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
