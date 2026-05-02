@@ -99,6 +99,34 @@ function ChartCard({
   );
 }
 
+// ── Toggle Group ──────────────────────────────────────────────────────────────
+function ToggleGroup<T extends string>({
+  value,
+  onChange,
+  options,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: { id: T; label: string }[];
+}) {
+  return (
+    <div className="flex bg-slate-100 rounded-lg p-0.5">
+      {options.map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          onClick={() => onChange(opt.id)}
+          className={`px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all ${
+            value === opt.id ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── Stock bar ─────────────────────────────────────────────────────────────────
 function StockBar({ current, min, max }: { current: number; min: number; max?: number | null }) {
   const eff = max || min * 2 || current * 2 || 1;
@@ -124,6 +152,7 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [chartType, setChartType] = useState<"bar" | "line">("bar");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -200,10 +229,20 @@ export default function DashboardPage() {
                 iconColor="text-blue-600" 
                 className="lg:col-span-2"
                 toolbar={
-                  <div className="flex gap-3 text-[11px] sm:text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                    <span>รับเข้า <span className="font-bold text-blue-600">{period.in.toLocaleString()}</span></span>
-                    <span>จ่ายออก <span className="font-bold text-green-600">{period.out.toLocaleString()}</span></span>
-                    <span>ใบสั่งยา <span className="font-bold text-orange-500">{period.rx.toLocaleString()}</span></span>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <ToggleGroup
+                      value={chartType}
+                      onChange={setChartType}
+                      options={[
+                        { id: "bar", label: "แท่ง" },
+                        { id: "line", label: "เส้น" },
+                      ]}
+                    />
+                    <div className="hidden sm:flex gap-3 text-[11px] sm:text-xs text-slate-500 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                      <span>รับเข้า <span className="font-bold text-blue-600">{period.in.toLocaleString()}</span></span>
+                      <span>จ่ายออก <span className="font-bold text-green-600">{period.out.toLocaleString()}</span></span>
+                      <span>ใบสั่งยา <span className="font-bold text-orange-500">{period.rx.toLocaleString()}</span></span>
+                    </div>
                   </div>
                 }
               >
@@ -221,10 +260,22 @@ export default function DashboardPage() {
                       <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#f97316' }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={{ fontSize: 12, borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                       <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, paddingTop: '10px' }} />
-                      <Bar yAxisId="left" dataKey="รับเข้า" fill="#3b82f6" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
-                      <Bar yAxisId="left" dataKey="จ่ายออก" fill="#10b981" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
-                      <Bar yAxisId="left" dataKey="คืนยา" fill="#cbd5e1" opacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={8} />
-                      <Line yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={false} strokeDasharray="4 3" />
+                      
+                      {chartType === "bar" ? (
+                        <>
+                          <Bar yAxisId="left" dataKey="รับเข้า" fill="#3b82f6" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
+                          <Bar yAxisId="left" dataKey="จ่ายออก" fill="#10b981" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
+                          <Bar yAxisId="left" dataKey="คืนยา" fill="#cbd5e1" opacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={8} />
+                          <Line yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={false} strokeDasharray="4 3" />
+                        </>
+                      ) : (
+                        <>
+                          <Line yAxisId="left" dataKey="รับเข้า" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line yAxisId="left" dataKey="จ่ายออก" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line yAxisId="left" dataKey="คืนยา" stroke="#cbd5e1" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={{ r: 3 }} strokeDasharray="4 3" />
+                        </>
+                      )}
                     </ComposedChart>
                   </ResponsiveContainer>
                 )}
