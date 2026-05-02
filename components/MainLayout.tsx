@@ -6,7 +6,8 @@ import Sidebar from "./Sidebar";
 import { useAlertCount } from "@/lib/alertContext";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Bell, Settings, LogOut, User } from "lucide-react";
+import { Bell, Settings, LogOut, User, Menu } from "lucide-react";
+import clsx from "clsx";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
   const router = useRouter();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [fullName, setFullName] = useState('');
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +61,14 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
         style={{ background: "linear-gradient(90deg, #003d82 0%, #00306a 100%)" }}
       >
         {/* Left: Logo + Name */}
-        <div className="flex items-center gap-2 min-w-0 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink-0">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer sm:mr-1 shrink-0"
+            aria-label="Toggle Sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <div
             className="flex items-center gap-2 sm:space-x-4 cursor-pointer min-w-0"
             onClick={() => router.push('/')}
@@ -158,10 +167,13 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
 
         {/* Sidebar */}
         <aside
-          style={{ width: "var(--sidebar-w)", minWidth: "var(--sidebar-w)", background: "linear-gradient(180deg, #003d82 0%, #00306a 100%)" }}
-          className="h-full flex flex-col flex-shrink-0 shadow-xl"
+          style={{ width: isSidebarOpen ? "var(--sidebar-w)" : "0px", minWidth: isSidebarOpen ? "var(--sidebar-w)" : "0px" }}
+          className={clsx(
+            "h-full flex flex-col flex-shrink-0 shadow-xl bg-white border-r border-slate-200 transition-all duration-300",
+            !isSidebarOpen && "overflow-hidden border-r-0"
+          )}
         >
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ width: "var(--sidebar-w)" }}>
             <Sidebar alertCount={unreadCount} />
           </div>
         </aside>

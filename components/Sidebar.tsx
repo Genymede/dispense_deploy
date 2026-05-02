@@ -75,27 +75,27 @@ function CollapseGroup({ group }: { group: NavGroup }) {
       <button onClick={() => setOpen(!open)}
         className={clsx(
           "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
-          isActive ? "bg-white/15 text-white font-semibold" : "text-blue-100/80 hover:bg-white/10 hover:text-white"
+          isActive ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
         )}
       >
-        <Icon size={16} className={isActive ? "text-blue-200" : "text-blue-300/60"} />
+        <Icon size={16} className={isActive ? "text-blue-600" : "text-slate-400"} />
         <span className="flex-1 text-left text-[13px]">{group.label}</span>
-        <ChevronDown size={12} className={clsx("text-blue-300/50 transition-transform duration-200", open && "rotate-180")} />
+        <ChevronDown size={12} className={clsx("text-slate-400 transition-transform duration-200", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="ml-3.5 mt-0.5 border-l border-white/10 pl-2.5 space-y-0.5">
+        <div className="ml-3.5 mt-0.5 border-l border-slate-200 pl-2.5 space-y-0.5">
           {group.items.map(({ href, label, icon: ItemIcon }) => {
             const active = pathname === href;
             return (
               <Link key={href} href={href}
                 className={clsx(
                   "flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all",
-                  active ? "bg-white/15 text-white font-semibold" : "text-blue-100/60 hover:bg-white/8 hover:text-blue-100"
+                  active ? "bg-blue-50/70 text-blue-700 font-semibold" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                 )}
               >
-                <ItemIcon size={13} className={active ? "text-blue-200" : "text-blue-300/40"} />
+                <ItemIcon size={13} className={active ? "text-blue-600" : "text-slate-400"} />
                 <span className="flex-1">{label}</span>
-                {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-300" />}
+                {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
               </Link>
             );
           })}
@@ -112,10 +112,10 @@ function NavLink({ href, label, icon: Icon, badge }: NavItem & { badge?: number 
     <Link href={href}
       className={clsx(
         "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all group",
-        active ? "bg-white/15 text-white font-semibold" : "text-blue-100/80 hover:bg-white/10 hover:text-white"
+        active ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       )}
     >
-      <Icon size={16} className={active ? "text-blue-200" : "text-blue-300/60 group-hover:text-blue-200"} />
+      <Icon size={16} className={active ? "text-blue-600" : "text-slate-400 group-hover:text-slate-500"} />
       <span className="flex-1">{label}</span>
       {badge != null && badge > 0 && (
         <span className="relative flex items-center justify-center">
@@ -125,7 +125,7 @@ function NavLink({ href, label, icon: Icon, badge }: NavItem & { badge?: number 
           </span>
         </span>
       )}
-      {active && <ChevronRight size={13} className="text-blue-300/60" />}
+      {active && <ChevronRight size={13} className="text-blue-600" />}
     </Link>
   );
 }
@@ -136,16 +136,16 @@ export default function Sidebar({ alertCount = 0 }: { alertCount?: number }) {
       <NavLink href="/dispense" label="จ่ายยา" icon={Package} />
       <NavLink href="/delivery" label="จัดส่งยา" icon={Truck} />
       <div className="pt-2 pb-0.5 px-2">
-        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">ทะเบียน & รายงาน</p>
+        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">ทะเบียน & รายงาน</p>
       </div>
       <CollapseGroup group={registryGroup} />
       <CollapseGroup group={reportsGroup} />
       <div className="pt-2 pb-0.5 px-2">
-        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">คลังยา</p>
+        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">คลังยา</p>
       </div>
       <CollapseGroup group={warehouseGroup} />
       <div className="pt-2 pb-0.5 px-2">
-        <p className="text-[9px] font-semibold uppercase tracking-widest text-blue-300/40">อื่นๆ</p>
+        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">อื่นๆ</p>
       </div>
       <NavLink href="/sticker" label="สติ๊กเกอร์ยา" icon={Tag} />
       <NavLink href="/alerts" label="แจ้งเตือน" icon={Bell} badge={alertCount} />
