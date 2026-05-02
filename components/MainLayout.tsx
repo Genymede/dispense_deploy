@@ -55,97 +55,83 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
 
       {/* ── Global Header ──────────────────────────────────────────────────── */}
       <header
-        className="flex-shrink-0 h-16 w-full z-30 shadow-md flex items-center px-4 sm:px-6 gap-4 text-white relative"
+        className="flex-shrink-0 h-16 sm:h-20 w-full z-50 shadow-md flex items-center justify-between px-3 sm:px-6 text-white relative"
         style={{ background: "linear-gradient(90deg, #003d82 0%, #00306a 100%)" }}
       >
         {/* Left: Logo + Name */}
-        <div
-          className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
-          onClick={() => router.push('/')}
-        >
-          <div className="w-10 h-10 flex bg-white rounded-xl items-center justify-center shrink-0 overflow-hidden shadow-sm border border-white/20">
-            <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-full h-full object-cover p-0.5" />
-          </div>
-          <div className="hidden sm:block min-w-0">
-            <h2 className="font-bold text-[14px] lg:text-[15px] leading-tight text-white truncate">
-              โรงพยาบาลวัดห้วยปลากั้งเพื่อสังคม
-            </h2>
-            <p className="text-[11px] text-blue-200/70 font-medium truncate leading-tight">
-              PharmSub — ระบบบริหารคลังยาย่อย
-            </p>
-          </div>
-          <div className="block sm:hidden min-w-0">
-            <h2 className="font-bold text-sm leading-tight truncate">PharmSub</h2>
-            <p className="text-[10px] text-blue-200/70 truncate">ระบบจ่ายยา</p>
+        <div className="flex items-center gap-2 min-w-0 shrink-0">
+          <div
+            className="flex items-center gap-2 sm:space-x-4 cursor-pointer min-w-0"
+            onClick={() => router.push('/')}
+          >
+            <div className="w-10 h-10 sm:w-16 sm:h-16 flex bg-white rounded-xl sm:rounded-[15px] items-center justify-center shrink-0 overflow-hidden shadow-sm">
+              <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-cover p-0.5 sm:p-1" />
+            </div>
+            <div className="hidden md:block min-w-0">
+              <h2 className="font-bold text-lg lg:text-xl leading-tight py-0.5 truncate">
+                โรงพยาบาลวัดห้วยปลากั้งเพื่อสังคม
+              </h2>
+              <p className="text-sm lg:text-base text-blue-100 font-medium truncate">
+                PharmSub — ระบบบริหารคลังยาย่อย
+              </p>
+            </div>
+            <div className="block md:hidden min-w-0">
+              <h2 className="font-bold text-sm leading-tight truncate">PharmSub</h2>
+              <p className="text-[10px] text-blue-100 truncate">ระบบจ่ายยา</p>
+            </div>
           </div>
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:space-x-4 shrink-0">
 
           {/* Bell */}
           <button
             onClick={() => router.push("/alerts")}
-            className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
+            className="relative p-1.5 sm:p-2 text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
             title="การแจ้งเตือน"
           >
-            <Bell size={18} />
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             {unreadCount > 0 && (
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#003d82]" />
             )}
           </button>
 
           {/* Divider */}
-          <div className="h-5 w-px bg-white/20 mx-0.5" />
+          <div className="h-5 sm:h-6 w-px bg-white/20 mx-0.5" />
 
           {/* User: name + role + avatar */}
           <div className="relative flex items-center gap-2 sm:gap-3 shrink-0" ref={userMenuRef}>
-            <div className="hidden md:flex flex-col text-right">
-              <span className="text-[13px] font-bold text-white truncate max-w-[180px]">
+            <div className="hidden md:flex flex-col text-right w-[160px] shrink-0">
+              <span className="text-sm font-bold text-white truncate">
                 {displayName}
               </span>
-              <span className="text-[10px] text-blue-200/70 font-medium leading-none mt-0.5 truncate max-w-[180px]">
+              <span className="text-[11px] text-blue-100 font-medium leading-none mt-0.5 truncate">
                 {roleLabel || 'PharmSub'}
               </span>
             </div>
 
             <button
               onClick={() => setShowUserMenu(v => !v)}
-              className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center
-                         border border-white/20 text-white text-sm font-black transition-all active:scale-95 shrink-0"
+              className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center border border-white/20 text-white text-sm font-black overflow-hidden cursor-pointer transition-all active:scale-95 shrink-0 shadow-inner"
               title={displayName}
             >
-              {user ? initials : <User size={16} />}
+              {user ? initials : <User className="w-5 h-5" />}
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 top-[110%] w-56 bg-white rounded-2xl
-                              shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100
-                              overflow-hidden z-50 text-gray-800">
-                {/* Profile header */}
+              <div className="absolute right-0 top-[110%] w-56 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 text-gray-800 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                 <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">บัญชีผู้ใช้</p>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700
-                                    flex items-center justify-center shrink-0">
-                      <span className="text-white text-xs font-bold">{initials}</span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-bold text-gray-800 truncate">{displayName}</p>
-                      {roleLabel && <p className="text-[10px] text-gray-400 truncate">{roleLabel}</p>}
-                    </div>
-                  </div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">บัญชีผู้ใช้</p>
+                  <p className="text-sm font-bold text-gray-800 truncate">{displayName}</p>
+                  {roleLabel && <p className="text-[11px] text-gray-500 truncate mt-0.5">{roleLabel}</p>}
                 </div>
-
-                {/* Menu items */}
                 <div className="p-1.5 space-y-0.5">
                   <button
                     onClick={() => { router.push('/settings'); setShowUserMenu(false); }}
-                    className="w-full text-left px-3.5 py-2 text-sm font-bold text-gray-700
-                               hover:bg-gray-50 rounded-xl flex items-center gap-3 transition-colors group"
+                    className="w-full text-left px-3.5 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded-xl flex items-center gap-3 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center
-                                    group-hover:bg-blue-50 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
                       <Settings className="w-4 h-4 text-gray-500 group-hover:text-blue-600" />
                     </div>
                     ตั้งค่าระบบ
@@ -153,11 +139,9 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
 
                   <button
                     onClick={() => { logout(); setShowUserMenu(false); }}
-                    className="w-full text-left px-3.5 py-2 text-sm font-bold text-red-600
-                               hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors group"
+                    className="w-full text-left px-3.5 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center
-                                    group-hover:bg-red-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
                       <LogOut className="w-4 h-4" />
                     </div>
                     ออกจากระบบ
