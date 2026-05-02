@@ -210,7 +210,7 @@ export default function StockInPage() {
       </div>
 
       {/* HISTORY TAB (รวมทุกอย่าง) */}
-      <div className="space-y-3">
+      <div className="space-y-5">
         {/* Summary */}
         <div className="grid grid-cols-3 gap-4">
           {[
@@ -230,7 +230,7 @@ export default function StockInPage() {
 
         {/* Pending Approvals + Requisitions */}
         <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between p-4 border-b border-slate-100">
+          <div className="flex items-center justify-between border-b border-slate-100">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-700">คำขอรออนุมัติ</h2>
               {(pending.length + reqs.length) > 0 && (
