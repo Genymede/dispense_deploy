@@ -210,7 +210,7 @@ export default function StockInPage() {
       </div>
 
       {/* HISTORY TAB (รวมทุกอย่าง) */}
-      <div className="space-y-5">
+      <div className="space-y-3">
         {/* Summary */}
         <div className="grid grid-cols-3 gap-4">
           {[
