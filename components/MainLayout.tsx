@@ -167,14 +167,13 @@ export default function MainLayout({ children, title, subtitle, actions }: MainL
 
         {/* Sidebar */}
         <aside
-          style={{ width: isSidebarOpen ? "var(--sidebar-w)" : "0px", minWidth: isSidebarOpen ? "var(--sidebar-w)" : "0px" }}
+          style={{ width: isSidebarOpen ? "var(--sidebar-w)" : "64px", minWidth: isSidebarOpen ? "var(--sidebar-w)" : "64px" }}
           className={clsx(
-            "h-full flex flex-col flex-shrink-0 shadow-xl bg-white border-r border-slate-200 transition-all duration-300",
-            !isSidebarOpen && "overflow-hidden border-r-0"
+            "h-full flex flex-col flex-shrink-0 shadow-xl bg-white border-r border-slate-200 transition-all duration-300 overflow-x-hidden"
           )}
         >
-          <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ width: "var(--sidebar-w)" }}>
-            <Sidebar alertCount={unreadCount} />
+          <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ width: isSidebarOpen ? "var(--sidebar-w)" : "64px" }}>
+            <Sidebar alertCount={unreadCount} isExpanded={isSidebarOpen} />
           </div>
         </aside>
 
