@@ -245,7 +245,7 @@ export default function StockInPage() {
             <table className="w-full text-sm">
               <thead className="bg-blue-50 border-b border-blue-100">
                 <tr>
-                  {['เลขที่เอกสาร', 'วันที่ขอ', 'รายการ', 'ผู้ขอ', 'สถานะ', 'ผู้อนุมัติ', 'หมายเหตุ'].map(h => (
+                  {['เลขที่เอกสาร', 'วันที่ขอ', 'รายการ', 'ผู้ขอเบิก', 'สถานะ', 'ผู้อนุมัติ', 'หมายเหตุ'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-blue-700 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
