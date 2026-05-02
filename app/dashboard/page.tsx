@@ -266,14 +266,14 @@ export default function DashboardPage() {
                           <Bar yAxisId="left" dataKey="รับเข้า" fill="#3b82f6" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
                           <Bar yAxisId="left" dataKey="จ่ายออก" fill="#10b981" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={12} />
                           <Bar yAxisId="left" dataKey="คืนยา" fill="#cbd5e1" opacity={0.8} radius={[4, 4, 0, 0]} maxBarSize={8} />
-                          <Line yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={false} strokeDasharray="4 3" />
+                          <Line type="monotone" yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={false} strokeDasharray="4 3" />
                         </>
                       ) : (
                         <>
-                          <Line yAxisId="left" dataKey="รับเข้า" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3 }} />
-                          <Line yAxisId="left" dataKey="จ่ายออก" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
-                          <Line yAxisId="left" dataKey="คืนยา" stroke="#cbd5e1" strokeWidth={2.5} dot={{ r: 3 }} />
-                          <Line yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={{ r: 3 }} strokeDasharray="4 3" />
+                          <Line type="monotone" yAxisId="left" dataKey="รับเข้า" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line type="monotone" yAxisId="left" dataKey="จ่ายออก" stroke="#10b981" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line type="monotone" yAxisId="left" dataKey="คืนยา" stroke="#cbd5e1" strokeWidth={2.5} dot={{ r: 3 }} />
+                          <Line type="monotone" yAxisId="right" dataKey="ใบสั่งยา" stroke="#f97316" strokeWidth={2.5} dot={{ r: 3 }} strokeDasharray="4 3" />
                         </>
                       )}
                     </ComposedChart>
