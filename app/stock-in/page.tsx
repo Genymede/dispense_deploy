@@ -21,7 +21,6 @@ const REQ_STATUS: Record<string, { label: string; badge: 'warning' | 'info' | 's
 };
 
 const PAGE_TABS = [
-  { key: 'requisitions', label: 'คำขอเบิกจากคลังหลัก', icon: <ClipboardList size={14} /> },
   { key: 'history', label: 'ประวัติรับยาเข้าคลัง', icon: <ArrowDownToLine size={14} /> },
 ] as const;
 type PageTab = typeof PAGE_TABS[number]['key'];
@@ -42,11 +41,11 @@ function RequisitionRow({ req }: { req: any }) {
         <td className="px-4 py-3 font-mono text-xs font-semibold text-primary-700">{req.doc_no}</td>
         <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(req.request_date || req.created_at, true)}</td>
         <td className="px-4 py-3 text-xs text-slate-500 text-center">{req.item_count ?? items.length} รายการ</td>
-        <td className="px-4 py-3 text-xs text-slate-600">{req.approver_name || '—'}</td>
+        <td className="px-4 py-3 text-xs text-slate-600">{req.requester_name || '—'}</td>
         <td className="px-4 py-3">
           <Badge variant={cfg.badge}>{cfg.label}</Badge>
         </td>
-        <td className="px-4 py-3 text-xs text-slate-600">{req.requester_name || '—'}</td>
+        <td className="px-4 py-3 text-xs text-slate-600">{req.approver_name || '—'}</td>
         <td className="px-4 py-3 text-xs text-slate-400 max-w-44 truncate">{req.note || '—'}</td>
       </tr>
       {open && items.length > 0 && (
@@ -94,7 +93,7 @@ function RequisitionRow({ req }: { req: any }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function StockInPage() {
-  const [tab, setTab] = useState<PageTab>('requisitions');
+  const [tab, setTab] = useState<PageTab>('history');
   const { user } = useAuth();
 
   // ── Requisitions ────────────────────────────────────────────────────────────
@@ -119,8 +118,6 @@ export default function StockInPage() {
       toast.error(`โหลดคำขอเบิกไม่ได้: ${err.message}`);
     } finally { setReqLoading(false); }
   }, [reqStatus, reqPage]);
-
-  useEffect(() => { if (tab === 'requisitions') loadReqs(); }, [tab, loadReqs]);
 
   // ── History (existing stock-in transactions) ────────────────────────────────
   const [history, setHistory] = useState<StockTransaction[]>([]);
@@ -152,16 +149,22 @@ export default function StockInPage() {
     } catch { } finally { setPendingLoading(false); }
   }, []);
 
+  // โหลดข้อมูลเมื่ออยู่ในแท็บ history
   useEffect(() => {
-    if (tab === 'history') { loadHistory(); loadPending(); }
-  }, [tab, loadHistory, loadPending]);
+    if (tab === 'history') {
+      loadHistory();
+      loadPending();
+      loadReqs();           // โหลดคำขอเบิกด้วย
+    }
+  }, [tab, loadHistory, loadPending, loadReqs]);
 
   const handleApprove = async (tx_id: number) => {
     setApproving(tx_id);
     try {
       await stockApi.approve(tx_id, user?.email);
       toast.success('อนุมัติแล้ว สต็อกถูกอัปเดต');
-      loadPending(); loadHistory();
+      loadPending();
+      loadHistory();
     } catch (err: any) { toast.error(err.message); }
     finally { setApproving(null); }
   };
@@ -196,227 +199,192 @@ export default function StockInPage() {
         </a>
       }>
 
-      {/* ── Tab bar ── */}
+      {/* Tab bar (เหลือแท็บเดียว) */}
       <div className="flex gap-1 bg-slate-200 p-1 rounded-xl mb-5 w-fit">
         {PAGE_TABS.map(({ key, label, icon }) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === key ? 'bg-white text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-              }`}>
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-primary-700 shadow-sm`}>
             {icon}{label}
           </button>
         ))}
       </div>
 
-      {/* ══ REQUISITIONS TAB ══════════════════════════════════════════════════ */}
-      {tab === 'requisitions' && (
-        <div className="space-y-4">
-          {/* Filters */}
-          <Card className="!p-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex gap-1">
-                {(['all', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const).map(s => (
-                  <button key={s}
-                    onClick={() => { setReqStatus(s); setReqPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${reqStatus === s
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}>
-                    {s === 'all' ? 'ทั้งหมด' : (REQ_STATUS[s]?.label ?? s)}
-                  </button>
-                ))}
+      {/* HISTORY TAB (รวมทุกอย่าง) */}
+      <div className="space-y-5">
+        {/* Summary */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'รับยาวันนี้', value: todayTxs.length, icon: <ArrowDownToLine size={18} />, color: 'text-primary-600 bg-primary-50' },
+            { label: 'หน่วยรับทั้งหมดวันนี้', value: todayTxs.reduce((s, h) => s + h.quantity, 0).toLocaleString(), icon: <Package size={18} />, color: 'text-green-600 bg-green-50' },
+            { label: 'ประวัติทั้งหมด', value: total.toLocaleString(), icon: <Clock size={18} />, color: 'text-slate-600 bg-slate-100' },
+          ].map(({ label, value, icon, color }) => (
+            <Card key={label} className="flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>{icon}</div>
+              <div>
+                <p className="text-xs text-slate-500">{label}</p>
+                <p className="text-2xl font-bold text-slate-800">{value}</p>
               </div>
-              <button onClick={loadReqs}
-                className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors ml-auto">
-                <RefreshCw size={14} className={reqLoading ? 'animate-spin' : ''} />
-              </button>
-            </div>
-          </Card>
-
-          {/* Table */}
-          <Card className="overflow-hidden p-0">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-slate-700">รายการคำขอเบิกยา</h2>
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                  {reqTotal.toLocaleString()}
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">กดที่แถวเพื่อดูรายการยาในคำขอ</p>
-            </div>
-
-            {reqLoading ? (
-              <div className="flex justify-center py-12"><Spinner size={24} /></div>
-            ) : reqs.length === 0 ? (
-              <EmptyState icon={<ClipboardList size={36} />} title="ไม่พบคำขอเบิกยา"
-                description="ไม่มีคำขอจากห้องจ่ายยา (แผนก 7) ที่ตรงกับเงื่อนไขที่เลือก" />
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50 border-b border-slate-100">
-                      <tr>
-                        <th className="w-5" />
-                        {['เลขที่เอกสาร', 'วันที่ขอ', 'รายการ', 'ผู้ขอ', 'สถานะ', 'ผู้อนุมัติ', 'หมายเหตุ'].map(h => (
-                          <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {reqs.map(req => <RequisitionRow key={req.id} req={req} />)}
-                    </tbody>
-                  </table>
-                </div>
-                {reqTotalPages > 1 && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-                    <p className="text-xs text-slate-500">หน้า {reqPage}/{reqTotalPages} · {reqTotal.toLocaleString()} รายการ</p>
-                    <div className="flex gap-1">
-                      <Button variant="secondary" size="xs" disabled={reqPage === 1} onClick={() => setReqPage(p => p - 1)}>◀</Button>
-                      <Button variant="secondary" size="xs" disabled={reqPage >= reqTotalPages} onClick={() => setReqPage(p => p + 1)}>▶</Button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </Card>
+            </Card>
+          ))}
         </div>
-      )}
 
-      {/* ══ HISTORY TAB ══════════════════════════════════════════════════════ */}
-      {tab === 'history' && (
-        <div className="space-y-5">
-          {/* Summary */}
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { label: 'รับยาวันนี้', value: todayTxs.length, icon: <ArrowDownToLine size={18} />, color: 'text-primary-600 bg-primary-50' },
-              { label: 'หน่วยรับทั้งหมดวันนี้', value: todayTxs.reduce((s, h) => s + h.quantity, 0).toLocaleString(), icon: <Package size={18} />, color: 'text-green-600 bg-green-50' },
-              { label: 'ประวัติทั้งหมด', value: total.toLocaleString(), icon: <Clock size={18} />, color: 'text-slate-600 bg-slate-100' },
-            ].map(({ label, value, icon, color }) => (
-              <Card key={label} className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>{icon}</div>
-                <div>
-                  <p className="text-xs text-slate-500">{label}</p>
-                  <p className="text-2xl font-bold text-slate-800">{value}</p>
-                </div>
-              </Card>
-            ))}
+        {/* Pending Approvals + Requisitions */}
+        <Card className="overflow-hidden p-0">
+          <div className="flex items-center justify-between p-4 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-slate-700">คำขอรออนุมัติ</h2>
+              {(pending.length + reqs.length) > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                  {pending.length + reqs.length}
+                </span>
+              )}
+            </div>
+            <button onClick={() => { loadPending(); loadReqs(); }}
+              className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+              <RefreshCw size={14} className={(pendingLoading || reqLoading) ? 'animate-spin' : ''} />
+            </button>
           </div>
 
-          {/* Pending approvals */}
-          <Card className="overflow-hidden p-0">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold text-slate-700">คำขอรออนุมัติ</h2>
-                {pending.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">{pending.length}</span>
-                )}
+          {/* Filters สำหรับคำขอเบิก */}
+          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-medium text-slate-500 mr-2">คำขอเบิกจากคลังหลัก:</span>
+              {(['all', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const).map(s => (
+                <button key={s}
+                  onClick={() => { setReqStatus(s); setReqPage(1); }}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${reqStatus === s
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-white border border-slate-200 hover:bg-slate-100'
+                    }`}>
+                  {s === 'all' ? 'ทั้งหมด' : (REQ_STATUS[s]?.label ?? s)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {pendingLoading || reqLoading ? (
+            <div className="flex justify-center py-12"><Spinner size={24} /></div>
+          ) : pending.length === 0 && reqs.length === 0 ? (
+            <EmptyState icon={<CheckCircle size={28} />} title="ไม่มีคำขอรออนุมัติ" />
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-amber-50 border-b border-amber-100">
+                <tr>
+                  {['ประเภท', 'เวลาขอ', 'รายการ', 'จำนวน', 'Lot / วันที่', 'ผู้เกี่ยวข้อง', 'สถานะ', 'จัดการ'].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-amber-700 whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+
+                {/* Pending Stock-In */}
+                {pending.map(tx => (
+                  <tr key={`pending-${tx.tx_id}`} className="table-row-hover">
+                    <td className="px-4 py-3"><Badge variant="info">รับเข้า</Badge></td>
+                    <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(tx.created_at, true)}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">{tx.med_showname || tx.med_name}</td>
+                    <td className="px-4 py-3"><Badge variant="success">+{tx.quantity.toLocaleString()}</Badge></td>
+                    <td className="px-4 py-3 text-xs text-slate-500 font-mono">
+                      {tx.lot_number || '-'}<br />{fmtDate(tx.expiry_date)}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-slate-600">{tx.performed_by_name || '-'}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant="warning">รออนุมัติ</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <button disabled={approving === tx.tx_id} onClick={() => handleApprove(tx.tx_id)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50">
+                          <ShieldCheck size={13} />อนุมัติ
+                        </button>
+                        <button disabled={approving === tx.tx_id} onClick={() => handleReject(tx.tx_id)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50">
+                          <X size={13} />ปฏิเสธ
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Requisitions */}
+                {reqs.map(req => (
+                  <RequisitionRow key={`req-${req.id}`} req={req} />
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {/* Pagination สำหรับคำขอเบิก */}
+          {reqTotalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50">
+              <p className="text-xs text-slate-500">คำขอเบิก • หน้า {reqPage}/{reqTotalPages} · {reqTotal.toLocaleString()} รายการ</p>
+              <div className="flex gap-1">
+                <Button variant="secondary" size="xs" disabled={reqPage === 1} onClick={() => setReqPage(p => p - 1)}>◀</Button>
+                <Button variant="secondary" size="xs" disabled={reqPage >= reqTotalPages} onClick={() => setReqPage(p => p + 1)}>▶</Button>
               </div>
             </div>
-            {pendingLoading ? (
-              <div className="flex justify-center py-8"><Spinner /></div>
-            ) : pending.length === 0 ? (
-              <EmptyState icon={<CheckCircle size={28} />} title="ไม่มีคำขอรออนุมัติ" />
-            ) : (
+          )}
+        </Card>
+
+        {/* History Table (เดิม) */}
+        <Card className="overflow-hidden p-0">
+          {/* ... (ส่วนประวัติการรับยาเดิมทั้งหมด ไว้เหมือนเดิม) ... */}
+          <div className="flex items-center justify-between p-4 border-b border-slate-100">
+            <h2 className="text-sm font-semibold text-slate-700">ประวัติการรับยา</h2>
+            <div className="w-64">
+              <Input placeholder="ค้นหา..." value={searchTx} onChange={e => setSearchTx(e.target.value)} icon={<Search size={13} />} />
+            </div>
+          </div>
+          {/* ตารางประวัติ (โค้ดเดิมทั้งหมด) */}
+          {loading ? (
+            <div className="flex justify-center py-12"><Spinner /></div>
+          ) : filteredHistory.length === 0 ? (
+            <EmptyState icon={<ArrowDownToLine size={36} />} title="ยังไม่มีประวัติการรับยา" />
+          ) : (
+            <>
               <table className="w-full text-sm">
-                <thead className="bg-amber-50 border-b border-amber-100">
+                <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    {['เวลาขอ', 'ชื่อยา', 'จำนวน', 'Lot', 'วันหมดอายุ', 'เลขอ้างอิง', 'ผู้ขอ', 'หมายเหตุ', 'จัดการ'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-amber-700 whitespace-nowrap">{h}</th>
+                    {['เวลา', 'ชื่อยา', 'จำนวนรับ', 'สต็อกก่อน→หลัง', 'Lot', 'เลขอ้างอิง', 'สถานะ', 'ผู้บันทึก', 'หมายเหตุ'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {pending.map(tx => (
+                  {filteredHistory.map(tx => (
                     <tr key={tx.tx_id} className="table-row-hover">
                       <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(tx.created_at, true)}</td>
                       <td className="px-4 py-3 font-medium text-slate-800">{tx.med_showname || tx.med_name}</td>
-                      <td className="px-4 py-3"><Badge variant="info">+{tx.quantity.toLocaleString()}</Badge></td>
+                      <td className="px-4 py-3"><Badge variant="success">+{tx.quantity.toLocaleString()}</Badge></td>
+                      <td className="px-4 py-3 text-xs font-mono text-slate-500">
+                        {tx.balance_before} <span className="text-slate-300">→</span> <span className="font-semibold text-primary-700">{tx.balance_after}</span>
+                      </td>
                       <td className="px-4 py-3 font-mono text-xs text-slate-400">{tx.lot_number || '-'}</td>
-                      <td className="px-4 py-3 text-xs text-slate-500">{fmtDate(tx.expiry_date)}</td>
                       <td className="px-4 py-3 text-xs text-slate-500">{tx.reference_no || '-'}</td>
+                      <td className="px-4 py-3">
+                        {tx.approval_status === 'approved' ? <Badge variant="success">อนุมัติแล้ว</Badge>
+                          : tx.approval_status === 'rejected' ? <Badge variant="danger">ปฏิเสธ</Badge>
+                            : <Badge variant="warning">รออนุมัติ</Badge>}
+                      </td>
                       <td className="px-4 py-3 text-xs text-slate-600">{tx.performed_by_name || '-'}</td>
                       <td className="px-4 py-3 text-xs text-slate-400 max-w-32 truncate">{tx.note || '-'}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          <button disabled={approving === tx.tx_id} onClick={() => handleApprove(tx.tx_id)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50">
-                            <ShieldCheck size={13} />อนุมัติ
-                          </button>
-                          <button disabled={approving === tx.tx_id} onClick={() => handleReject(tx.tx_id)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50">
-                            <X size={13} />ปฏิเสธ
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            )}
-          </Card>
-
-          {/* History */}
-          <Card className="overflow-hidden p-0">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100">
-              <h2 className="text-sm font-semibold text-slate-700">ประวัติการรับยา</h2>
-              <div className="w-64">
-                <Input placeholder="ค้นหา..." value={searchTx} onChange={e => setSearchTx(e.target.value)} icon={<Search size={13} />} />
-              </div>
-            </div>
-            {loading ? (
-              <div className="flex justify-center py-12"><Spinner /></div>
-            ) : filteredHistory.length === 0 ? (
-              <EmptyState icon={<ArrowDownToLine size={36} />} title="ยังไม่มีประวัติการรับยา" />
-            ) : (
-              <>
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                      {['เวลา', 'ชื่อยา', 'จำนวนรับ', 'สต็อกก่อน→หลัง', 'Lot', 'เลขอ้างอิง', 'สถานะ', 'ผู้บันทึก', 'หมายเหตุ'].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {filteredHistory.map(tx => (
-                      <tr key={tx.tx_id} className="table-row-hover">
-                        <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(tx.created_at, true)}</td>
-                        <td className="px-4 py-3 font-medium text-slate-800">{tx.med_showname || tx.med_name}</td>
-                        <td className="px-4 py-3"><Badge variant="success">+{tx.quantity.toLocaleString()}</Badge></td>
-                        <td className="px-4 py-3 text-xs font-mono text-slate-500">
-                          {tx.balance_before} <span className="text-slate-300">→</span> <span className="font-semibold text-primary-700">{tx.balance_after}</span>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-xs text-slate-400">{tx.lot_number || '-'}</td>
-                        <td className="px-4 py-3 text-xs text-slate-500">{tx.reference_no || '-'}</td>
-                        <td className="px-4 py-3">
-                          {tx.approval_status === 'approved'
-                            ? <Badge variant="success">อนุมัติแล้ว</Badge>
-                            : tx.approval_status === 'rejected'
-                              ? <Badge variant="danger">ปฏิเสธ</Badge>
-                              : <Badge variant="warning">รออนุมัติ</Badge>}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-slate-600">{tx.performed_by_name || '-'}</td>
-                        <td className="px-4 py-3 text-xs text-slate-400 max-w-32 truncate">{tx.note || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {histTotalPages > 1 && (
-                  <div className="flex justify-between items-center px-4 py-3 border-t border-slate-100">
-                    <p className="text-xs text-slate-500">หน้า {histPage}/{histTotalPages}</p>
-                    <div className="flex gap-1">
-                      <Button variant="secondary" size="xs" disabled={histPage === 1} onClick={() => setHistPage(p => p - 1)}>◀</Button>
-                      <Button variant="secondary" size="xs" disabled={histPage >= histTotalPages} onClick={() => setHistPage(p => p + 1)}>▶</Button>
-                    </div>
+              {histTotalPages > 1 && (
+                <div className="flex justify-between items-center px-4 py-3 border-t border-slate-100">
+                  <p className="text-xs text-slate-500">หน้า {histPage}/{histTotalPages}</p>
+                  <div className="flex gap-1">
+                    <Button variant="secondary" size="xs" disabled={histPage === 1} onClick={() => setHistPage(p => p - 1)}>◀</Button>
+                    <Button variant="secondary" size="xs" disabled={histPage >= histTotalPages} onClick={() => setHistPage(p => p + 1)}>▶</Button>
                   </div>
-                )}
-              </>
-            )}
-          </Card>
-        </div>
-      )}
-
+                </div>
+              )}
+            </>
+          )}
+        </Card>
+      </div>
     </MainLayout>
   );
 }
