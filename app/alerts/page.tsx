@@ -26,7 +26,7 @@ export default function AlertsPage() {
     setLoading(true);
     try {
       const res = await alertApi.getAll();
-      setAlerts(res.data);
+      setAlerts(res.data.filter((a: any) => a.alert_type !== 'new_drug'));
     } catch (err: any) {
       toast.error(err.message);
     } finally { setLoading(false); }

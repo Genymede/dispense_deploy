@@ -164,7 +164,7 @@ export default function DashboardPage() {
       ]);
       setStats(statsRes.data);
       setChart(chartRes.data);
-      setAlerts(alertsRes.data.slice(0, 5));
+      setAlerts(alertsRes.data.filter((a: any) => a.alert_type !== 'new_drug').slice(0, 5));
       setLowStock(lowRes.data.data);
       setLastUpdate(new Date());
     } catch (err: any) {
