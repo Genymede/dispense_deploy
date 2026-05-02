@@ -25,7 +25,7 @@ const PAGE_TABS = [
 ] as const;
 type PageTab = typeof PAGE_TABS[number]['key'];
 
-// ─── Requisition row (expandable) ─────────────────────────────────────────────
+// ─── Requisition row (ปรับให้คอลัมน์ตรงกับตารางหลัก) ─────────────────────
 function RequisitionRow({ req }: { req: any }) {
   const [open, setOpen] = useState(false);
   const cfg = REQ_STATUS[req.status?.toUpperCase()] ?? { label: req.status, badge: 'gray' as const };
@@ -35,23 +35,32 @@ function RequisitionRow({ req }: { req: any }) {
     <>
       <tr className="table-row-hover cursor-pointer border-b border-slate-50"
         onClick={() => setOpen(o => !o)}>
-        <td className="px-4 py-3 text-slate-300 w-5">
-          {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-        </td>
-        <td className="px-4 py-3 font-mono text-xs font-semibold text-primary-700">{req.doc_no}</td>
+        <td className="px-4 py-3"><Badge variant="info">เบิกจากคลังหลัก</Badge></td>
         <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtDate(req.request_date || req.created_at, true)}</td>
+        <td className="px-4 py-3 font-medium text-slate-800">{req.doc_no}</td>
         <td className="px-4 py-3 text-xs text-slate-500 text-center">{req.item_count ?? items.length} รายการ</td>
+        <td className="px-4 py-3 text-xs text-slate-500 font-mono">-</td>
         <td className="px-4 py-3 text-xs text-slate-600">{req.requester_name || '—'}</td>
         <td className="px-4 py-3">
           <Badge variant={cfg.badge}>{cfg.label}</Badge>
         </td>
-        <td className="px-4 py-3 text-xs text-slate-600">{req.approver_name || '—'}</td>
-        <td className="px-4 py-3 text-xs text-slate-400 max-w-44 truncate">{req.note || '—'}</td>
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => { e.stopPropagation(); }}
+              className="text-primary-600 hover:text-primary-700 text-xs font-medium flex items-center gap-1"
+            >
+              ดูรายละเอียด <ChevronRight size={14} />
+            </button>
+          </div>
+        </td>
       </tr>
+
+      {/* Expanded detail */}
       {open && items.length > 0 && (
         <tr className="bg-slate-50">
-          <td colSpan={9} className="px-6 pb-3 pt-0">
-            <div className="rounded-xl border border-slate-200 overflow-hidden mt-2">
+          <td colSpan={8} className="px-6 pb-4 pt-1">
+            <div className="rounded-xl border border-slate-200 overflow-hidden mt-1">
               <table className="w-full text-xs">
                 <thead className="bg-slate-100 border-b border-slate-200">
                   <tr>
@@ -149,12 +158,11 @@ export default function StockInPage() {
     } catch { } finally { setPendingLoading(false); }
   }, []);
 
-  // โหลดข้อมูลเมื่ออยู่ในแท็บ history
   useEffect(() => {
     if (tab === 'history') {
       loadHistory();
       loadPending();
-      loadReqs();           // โหลดคำขอเบิกด้วย
+      loadReqs();
     }
   }, [tab, loadHistory, loadPending, loadReqs]);
 
@@ -199,7 +207,7 @@ export default function StockInPage() {
         </a>
       }>
 
-      {/* Tab bar (เหลือแท็บเดียว) */}
+      {/* Tab bar */}
       <div className="flex gap-1 bg-slate-200 p-1 rounded-xl mb-5 w-fit">
         {PAGE_TABS.map(({ key, label, icon }) => (
           <button key={key} onClick={() => setTab(key)}
@@ -209,9 +217,8 @@ export default function StockInPage() {
         ))}
       </div>
 
-      {/* HISTORY TAB (รวมทุกอย่าง) */}
       <div className="space-y-5">
-        {/* Summary */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'รับยาวันนี้', value: todayTxs.length, icon: <ArrowDownToLine size={18} />, color: 'text-primary-600 bg-primary-50' },
@@ -228,13 +235,13 @@ export default function StockInPage() {
           ))}
         </div>
 
-        {/* Pending Approvals + Requisitions */}
+        {/* คำขอรออนุมัติ (รวมทั้งสองประเภท) */}
         <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between mb-2 border-b border-slate-100">
+          <div className="flex items-center justify-between p-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-700">คำขอรออนุมัติ</h2>
               {(pending.length + reqs.length) > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
                   {pending.length + reqs.length}
                 </span>
               )}
@@ -245,7 +252,7 @@ export default function StockInPage() {
             </button>
           </div>
 
-          {/* Filters สำหรับคำขอเบิก */}
+          {/* Filters */}
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-medium text-slate-500 mr-2">คำขอเบิกจากคลังหลัก:</span>
@@ -253,7 +260,7 @@ export default function StockInPage() {
                 <button key={s}
                   onClick={() => { setReqStatus(s); setReqPage(1); }}
                   className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${reqStatus === s
-                    ? 'bg-amber-600 text-white'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-white border border-slate-200 hover:bg-slate-100'
                     }`}>
                   {s === 'all' ? 'ทั้งหมด' : (REQ_STATUS[s]?.label ?? s)}
@@ -268,15 +275,14 @@ export default function StockInPage() {
             <EmptyState icon={<CheckCircle size={28} />} title="ไม่มีคำขอรออนุมัติ" />
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-amber-50 border-b border-amber-100">
+              <thead className="bg-blue-50 border-b border-blue-100">
                 <tr>
                   {['ประเภท', 'เวลาขอ', 'รายการ', 'จำนวน', 'Lot / วันที่', 'ผู้เกี่ยวข้อง', 'สถานะ', 'จัดการ'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-amber-700 whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-blue-700 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-
                 {/* Pending Stock-In */}
                 {pending.map(tx => (
                   <tr key={`pending-${tx.tx_id}`} className="table-row-hover">
@@ -314,7 +320,7 @@ export default function StockInPage() {
             </table>
           )}
 
-          {/* Pagination สำหรับคำขอเบิก */}
+          {/* Pagination for requisitions */}
           {reqTotalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50">
               <p className="text-xs text-slate-500">คำขอเบิก • หน้า {reqPage}/{reqTotalPages} · {reqTotal.toLocaleString()} รายการ</p>
@@ -326,16 +332,15 @@ export default function StockInPage() {
           )}
         </Card>
 
-        {/* History Table (เดิม) */}
+        {/* ประวัติการรับยา (เดิม) */}
         <Card className="overflow-hidden p-0">
-          {/* ... (ส่วนประวัติการรับยาเดิมทั้งหมด ไว้เหมือนเดิม) ... */}
-          <div className="flex items-center justify-between mb-2 border-b border-slate-100">
+          <div className="flex items-center justify-between p-4 border-b border-slate-100">
             <h2 className="text-sm font-semibold text-slate-700">ประวัติการรับยา</h2>
             <div className="w-64">
               <Input placeholder="ค้นหา..." value={searchTx} onChange={e => setSearchTx(e.target.value)} icon={<Search size={13} />} />
             </div>
           </div>
-          {/* ตารางประวัติ (โค้ดเดิมทั้งหมด) */}
+
           {loading ? (
             <div className="flex justify-center py-12"><Spinner /></div>
           ) : filteredHistory.length === 0 ? (
@@ -372,6 +377,7 @@ export default function StockInPage() {
                   ))}
                 </tbody>
               </table>
+
               {histTotalPages > 1 && (
                 <div className="flex justify-between items-center px-4 py-3 border-t border-slate-100">
                   <p className="text-xs text-slate-500">หน้า {histPage}/{histTotalPages}</p>
